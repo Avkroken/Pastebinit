@@ -47,8 +47,8 @@ jobs:
     if: startsWith(github.head_ref, 'release-please--')
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
-
+        uses: actions/checkout@v6
+        
       - name: Wait for required checks
         run: |
           echo "Waiting for required checks to complete..."
