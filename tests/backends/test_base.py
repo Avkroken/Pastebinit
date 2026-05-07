@@ -1,6 +1,6 @@
 import pytest
 from pastebinit.backends.base import (
-    BasePastebin, PasteOptions, BackendError, NotSupportedError, AuthError
+    BasePastebin, PasteOptions, NotSupportedError
 )
 
 
