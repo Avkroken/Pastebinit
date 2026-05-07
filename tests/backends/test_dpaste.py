@@ -4,8 +4,6 @@ from tests.conftest import make_http_response
 from pastebinit.backends.dpaste import DPaste
 from pastebinit.backends.base import PasteOptions
 
-_API = "https://dpaste.com/api/v2/"
-
 
 @pytest.fixture
 def backend():
