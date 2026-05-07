@@ -1,5 +1,6 @@
 import base64
 import json
+import logging
 import os
 import stat
 from pathlib import Path
@@ -11,6 +12,7 @@ from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 CONFIG_DIR = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config")) / "pastebinit"
 KEYSTORE_FILE = CONFIG_DIR / "keystore"
+logger = logging.getLogger(__name__)
 
 _ENV_MAP: dict[str, dict[str, str]] = {
     "pastebin.com": {
@@ -70,7 +72,7 @@ def _keystore_set(backend: str, field: str, value: str, password: str) -> None:
             salt_old, token = raw[:16], raw[16:]
             existing = json.loads(Fernet(_derive_key(password, salt_old)).decrypt(token))
         except Exception:
-            pass
+            logger.debug("Unable to read existing keystore; proceeding with new keystore content.", exc_info=True)
     salt = os.urandom(16)
     existing.setdefault(backend, {})[field] = value
     encrypted = Fernet(_derive_key(password, salt)).encrypt(json.dumps(existing).encode())
