@@ -3,7 +3,7 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from typing import Optional
 
-from .base import BasePastebin, PasteOptions, AuthError, BackendError, NotSupportedError
+from .base import BasePastebin, PasteOptions, AuthError, BackendError
 
 _API = "https://pastebin.com/api/api_post.php"
 _LOGIN = "https://pastebin.com/api/api_login.php"
