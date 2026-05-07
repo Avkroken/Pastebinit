@@ -2,7 +2,6 @@ import sys
 import argparse
 import pytest
 from io import StringIO
-from pathlib import Path
 from unittest.mock import patch, MagicMock
 from pastebinit.cli import build_parser, run
 
