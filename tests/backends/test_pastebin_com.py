@@ -1,5 +1,5 @@
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 from tests.conftest import make_http_response, patch_urlopen
 from pastebinit.backends.pastebin_com import PastebinCom
 from pastebinit.backends.base import PasteOptions, AuthError, BackendError
