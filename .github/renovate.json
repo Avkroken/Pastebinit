@@ -6,7 +6,7 @@
     ":dependencyDashboard",
     ":semanticCommits",
     ":separateMajorReleases",
-    ":combinePatchMinorReleases",
+    ":separatePatchReleases",
     ":prConcurrentLimit10",
     ":rebaseStalePrs",
     "group:allNonMajor"
