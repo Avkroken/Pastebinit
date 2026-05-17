@@ -6,7 +6,7 @@
     ":dependencyDashboard",
     ":semanticCommits",
     ":separateMajorReleases",
-    ":combinePatchMinorReleases",
+    ":separatePatchReleases",
     ":prConcurrentLimit10",
     ":rebaseStalePrs",
     "group:allNonMajor"
@@ -38,17 +38,17 @@
   "packageRules": [
     {
       "matchUpdateTypes": [
-        "patch",
-        "minor"
+        "patch"
       ],
-      "automerge": false
+      "automerge": true
     },
 
     {
       "matchDepTypes": [
         "devDependencies"
       ],
-      "groupName": "dev-dependencies"
+      "groupName": "dev-dependencies",
+      "automerge": true
     },
 
     {
