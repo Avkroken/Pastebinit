@@ -5,7 +5,7 @@
 [![Build](https://github.com/blixten85/pastebinit/actions/workflows/build.yml/badge.svg)](https://github.com/blixten85/pastebinit/actions/workflows/build.yml)
 [![CodeQL](https://github.com/blixten85/pastebinit/actions/workflows/codeql.yml/badge.svg)](https://github.com/blixten85/pastebinit/actions/workflows/codeql.yml)
 [![CodeRabbit](https://img.shields.io/coderabbit/prs/github/blixten85/pastebinit)](https://coderabbit.ai)
-![Downloads](https://img.shields.io/github/downloads/api-apoteket/pastebinit/total)
+![Downloads](https://img.shields.io/github/downloads/blixten85/pastebinit/total)
 
 Send text and files to pastebin services from the command line.
 
