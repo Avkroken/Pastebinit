@@ -22,6 +22,7 @@ def test_paste_sends_json():
     req = m.call_args[0][0]
     payload = json.loads(req.data)
     assert payload["files"][0]["lexer"] == "python"
+    assert payload["expiry"] == "1day"
 
 
 def test_paste_error_raises():

@@ -3,7 +3,8 @@ import urllib.request
 from .base import BasePastebin, PasteOptions, BackendError
 
 _API = "https://bpa.st/api/v1/paste"
-_EXPIRY = {"N": "1year", "1H": "1hour", "1D": "1day", "1W": "1week", "2W": "2weeks", "1M": "1month", "1Y": "1year"}
+# bpa.st currently only reliably supports "1day"; other values cause 400/500
+_EXPIRY = {"1D": "1day"}
 
 
 class BpaSt(BasePastebin):
@@ -17,7 +18,7 @@ class BpaSt(BasePastebin):
         lexer = opts.format if opts.format not in ("auto", "") else "text"
         payload = json.dumps({
             "files": [{"content": content, "lexer": lexer, "name": opts.title or "paste.txt"}],
-            "expiry": _EXPIRY.get(opts.expiry, "1year"),
+            "expiry": _EXPIRY.get(opts.expiry, "1day"),
             "private": opts.private > 0,
         }).encode()
         req = urllib.request.Request(_API, data=payload)
