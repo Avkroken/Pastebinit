@@ -29,8 +29,9 @@ paste.opendev.org, bpa.st, and paste.opensuse.org.
 ### Debian/Ubuntu (.deb)
 
 ```bash
-wget https://github.com/blixten85/pastebinit/releases/latest/download/pastebinit_2.0.0-1_all.deb
-sudo dpkg -i pastebinit_2.0.0-1_all.deb
+VERSION=$(curl -s https://api.github.com/repos/blixten85/pastebinit/releases/latest | grep '"tag_name"' | cut -d'"' -f4 | tr -d 'v')
+wget "https://github.com/blixten85/pastebinit/releases/latest/download/pastebinit_${VERSION}-1_all.deb"
+sudo dpkg -i "pastebinit_${VERSION}-1_all.deb"
 ```
 
 ### pip
