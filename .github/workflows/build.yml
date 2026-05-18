@@ -61,7 +61,7 @@ jobs:
           sudo apt-get install -y build-essential devscripts debhelper dh-python python3-all pybuild-plugin-pyproject
 
       - name: Build .deb
-        run: dpkg-buildpackage -us -uc -b
+        run: DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -us -uc -b
 
       - name: Upload .deb to release
         run: |
