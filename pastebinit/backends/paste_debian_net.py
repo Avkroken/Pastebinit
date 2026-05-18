@@ -1,31 +1,35 @@
-import xmlrpc.client
+import json
+import urllib.request
 from .base import BasePastebin, PasteOptions, BackendError
 
-_ENDPOINT = "http://paste.debian.net/server.pl"
+_API = "https://paste.debian.net/api/v1/paste"
 
-_EXPIRY_SECONDS = {
-    "N": 0, "1D": 86400, "1W": 604800, "2W": 1209600,
-    "1M": 2592000, "6M": 15552000, "1Y": 31536000,
+_EXPIRY_DAYS = {
+    "N": 90, "1D": 1, "1W": 7, "2W": 14, "1M": 30, "6M": 90, "1Y": 90,
 }
 
 
 class PasteDebianNet(BasePastebin):
     name = "paste.debian.net"
     url = "https://paste.debian.net"
-    supports_auth = True
     supports_expiry = True
     supports_privacy = True
-    supports_syntax = True
 
     def paste(self, content: str, opts: PasteOptions) -> str:
-        fmt = opts.format if opts.format not in ("auto", "") else "Plain Text"
-        expire = _EXPIRY_SECONDS.get(opts.expiry, 0)
-        hidden = 1 if opts.private > 0 else 0
+        payload = json.dumps({
+            "code": content,
+            "filename": opts.title or "paste.txt",
+            "expiry_days": _EXPIRY_DAYS.get(opts.expiry, 90),
+            "private": opts.private > 0,
+        }).encode()
+        req = urllib.request.Request(_API, data=payload)
+        req.add_header("Content-Type", "application/json")
+        req.add_header("User-Agent", "pastebinit/2.0.0")
         try:
-            proxy = xmlrpc.client.ServerProxy(_ENDPOINT)
-            result = proxy.paste.addPaste(content, fmt, opts.title, expire, hidden)
-        except Exception as e:
+            with urllib.request.urlopen(req, timeout=15) as resp:
+                result = json.loads(resp.read())
+        except OSError as e:
             raise BackendError(f"paste.debian.net error: {e}") from e
-        if result.get("rc") != 0:
-            raise BackendError(f"paste.debian.net returned error code {result.get('rc')}")
-        return result.get("url", f"https://paste.debian.net/{result['id']}/")
+        if "error" in result:
+            raise BackendError(f"paste.debian.net error: {result['error']}")
+        return result.get("url", f"https://paste.debian.net/hidden/{result['id']}")
