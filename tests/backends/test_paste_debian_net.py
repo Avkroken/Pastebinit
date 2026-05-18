@@ -1,5 +1,7 @@
+import json
 import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
+from tests.conftest import make_http_response
 from pastebinit.backends.paste_debian_net import PasteDebianNet
 from pastebinit.backends.base import PasteOptions, BackendError
 
@@ -10,29 +12,26 @@ def backend():
 
 
 def test_paste_returns_url(backend):
-    mock_proxy = MagicMock()
-    mock_proxy.paste.addPaste.return_value = {
-        "rc": 0, "id": 12345, "url": "https://paste.debian.net/12345/"
-    }
-    with patch("xmlrpc.client.ServerProxy", return_value=mock_proxy):
-        url = backend.paste("hello world", PasteOptions())
-    assert url == "https://paste.debian.net/12345/"
+    body = json.dumps({"id": "abc123", "url": "https://paste.debian.net/hidden/abc123"})
+    mock = make_http_response(body)
+    with patch("urllib.request.urlopen", return_value=mock):
+        url = backend.paste("hello\nworld\ntest", PasteOptions())
+    assert url == "https://paste.debian.net/hidden/abc123"
 
 
-def test_paste_server_error_raises(backend):
-    mock_proxy = MagicMock()
-    mock_proxy.paste.addPaste.return_value = {"rc": 1}
-    with patch("xmlrpc.client.ServerProxy", return_value=mock_proxy):
+def test_paste_sends_json(backend):
+    body = json.dumps({"id": "abc123", "url": "https://paste.debian.net/hidden/abc123"})
+    mock = make_http_response(body)
+    with patch("urllib.request.urlopen", return_value=mock) as m:
+        backend.paste("hello\nworld\ntest", PasteOptions(format="python"))
+    req = m.call_args[0][0]
+    payload = json.loads(req.data)
+    assert payload["code"] == "hello\nworld\ntest"
+
+
+def test_paste_error_raises(backend):
+    body = json.dumps({"error": "No code provided"})
+    mock = make_http_response(body)
+    with patch("urllib.request.urlopen", return_value=mock):
         with pytest.raises(BackendError):
             backend.paste("hello", PasteOptions())
-
-
-def test_paste_sends_syntax(backend):
-    mock_proxy = MagicMock()
-    mock_proxy.paste.addPaste.return_value = {
-        "rc": 0, "id": 1, "url": "https://paste.debian.net/1/"
-    }
-    with patch("xmlrpc.client.ServerProxy", return_value=mock_proxy):
-        backend.paste("fn main(){}", PasteOptions(format="rust"))
-    call_args = mock_proxy.paste.addPaste.call_args[0]
-    assert call_args[1] == "rust"
