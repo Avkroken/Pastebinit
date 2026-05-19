@@ -63,7 +63,8 @@ jobs:
       - name: Install build tools
         run: |
           sudo apt-get update
-          sudo apt-get install -y build-essential devscripts debhelper dh-python python3-all pybuild-plugin-pyproject
+          sudo apt-get install -y build-essential devscripts debhelper dh-python python3-all pybuild-plugin-pyproject python3-pip
+          sudo pip install --break-system-packages 'setuptools>=77'
 
       - name: Build .deb
         run: DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -us -uc -b
