@@ -28,10 +28,14 @@ paste.opendev.org, bpa.st, and paste.opensuse.org.
 
 ### Debian/Ubuntu (.deb)
 
+Pre-built packages are available for **amd64** and **arm64** on the
+[releases page](https://github.com/blixten85/pastebinit/releases/latest).
+
 ```bash
 VERSION=$(curl -s https://api.github.com/repos/blixten85/pastebinit/releases/latest | grep '"tag_name"' | cut -d'"' -f4 | tr -d 'v')
-wget "https://github.com/blixten85/pastebinit/releases/latest/download/pastebinit_${VERSION}-1_all.deb"
-sudo dpkg -i "pastebinit_${VERSION}-1_all.deb"
+ARCH=$(dpkg --print-architecture)
+wget "https://github.com/blixten85/pastebinit/releases/latest/download/pastebinit_${VERSION}-1_${ARCH}.deb"
+sudo dpkg -i "pastebinit_${VERSION}-1_${ARCH}.deb"
 ```
 
 ### pip

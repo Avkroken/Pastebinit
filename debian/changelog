@@ -1,3 +1,13 @@
+pastebinit (2.1.11-1) unstable; urgency=medium
+
+  * Build per-architecture .deb packages (amd64, arm64) via CI matrix.
+  * Change Architecture from 'all' to 'any' in debian/control.
+  * Override dh_builddeb to copy .deb into repo root after build.
+  * Fix license field in pyproject.toml to use SPDX string format.
+  * Add Debian build artifacts to .gitignore.
+
+ -- Anders Eriksson <36226327+blixten85@users.noreply.github.com>  Mon, 19 May 2026 12:00:00 +0200
+
 pastebinit (2.0.0-1) unstable; urgency=medium
 
   * Complete rewrite as a modern Python package.
