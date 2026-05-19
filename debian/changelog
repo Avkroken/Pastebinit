@@ -1,4 +1,4 @@
-pastebinit (2.1.11-1) unstable; urgency=medium
+pastebinit (2.2.1-1) unstable; urgency=medium
 
   * Build per-architecture .deb packages (amd64, arm64) via CI matrix.
   * Change Architecture from 'all' to 'any' in debian/control.

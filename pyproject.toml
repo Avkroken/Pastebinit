@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pastebinit"
-version = "2.0.0"
+version = "2.2.1"
 description = "Send text and files to pastebin services from the command line"
 readme = "README.md"
 license = { text = "GPL-2.0-or-later" }

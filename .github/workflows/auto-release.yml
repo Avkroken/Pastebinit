@@ -64,6 +64,19 @@ jobs:
     runs-on: ${{ matrix.runner }}
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
+      - name: Set version from tag
+        run: |
+          VERSION="${{ needs.tag.outputs.new_tag }}"
+          VERSION="${VERSION#v}"
+          sed -i "s/^version = .*/version = \"${VERSION}\"/" pyproject.toml
+          DATE=$(date -R)
+          {
+            printf 'pastebinit (%s-1) unstable; urgency=medium\n\n' "${VERSION}"
+            printf '  * Release %s\n\n' "${VERSION}"
+            printf ' -- Anders Eriksson <36226327+blixten85@users.noreply.github.com>  %s\n\n' "${DATE}"
+            cat debian/changelog
+          } > debian/changelog.new
+          mv debian/changelog.new debian/changelog
       - name: Install build tools
         run: |
           sudo apt-get update
