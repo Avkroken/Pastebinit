@@ -1,1 +1,6 @@
-__version__ = "2.0.0"
+from importlib.metadata import version, PackageNotFoundError
+
+try:
+    __version__ = version("pastebinit")
+except PackageNotFoundError:
+    __version__ = "unknown"
