@@ -9,8 +9,6 @@ on:
       - '!.github/workflows/build.yml'
   pull_request:
     branches: [main]
-  release:
-    types: [published]
   workflow_dispatch:
     inputs:
       tag:
@@ -46,14 +44,14 @@ jobs:
   build-deb:
     runs-on: ubuntu-latest
     needs: test
-    if: github.event_name == 'release' || (github.event_name == 'workflow_dispatch' && github.event.inputs.tag != '')
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.tag != ''
     permissions:
       contents: write
 
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6
         with:
-          ref: ${{ github.event.inputs.tag || github.event.release.tag_name }}
+          ref: ${{ github.event.inputs.tag }}
 
       - name: Install build tools
         run: |
@@ -65,8 +63,7 @@ jobs:
 
       - name: Upload .deb to release
         run: |
-          DEB=$(ls ../pastebinit_*.deb | head -1)
-          TAG="${{ github.event.inputs.tag || github.event.release.tag_name }}"
-          gh release upload "$TAG" "$DEB"
+          DEB=$(ls pastebinit_*.deb | head -1)
+          gh release upload "${{ github.event.inputs.tag }}" "$DEB"
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
