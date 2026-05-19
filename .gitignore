@@ -5,3 +5,16 @@ dist/
 build/
 .eggs/
 *.deb
+*.buildinfo
+*.changes
+
+# Debian build artifacts
+.pybuild/
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+debian/*.debhelper.log
+debian/*.postinst.debhelper
+debian/*.prerm.debhelper
+debian/*.substvars
+debian/pastebinit/
