@@ -4,15 +4,12 @@
 [![License](https://img.shields.io/badge/license-GPL--2.0%2B-blue)](LICENSE)
 [![Build](https://github.com/blixten85/pastebinit/actions/workflows/build.yml/badge.svg)](https://github.com/blixten85/pastebinit/actions/workflows/build.yml)
 [![CodeQL](https://github.com/blixten85/pastebinit/actions/workflows/codeql.yml/badge.svg)](https://github.com/blixten85/pastebinit/actions/workflows/codeql.yml)
-[![CodeRabbit](https://img.shields.io/coderabbit/prs/github/blixten85/pastebinit)](https://coderabbit.ai)
-![Downloads](https://img.shields.io/github/downloads/blixten85/pastebinit/total)
 
 Send text and files to pastebin services from the command line.
 
 Full API integration for **pastebin.com** — authentication, private folders,
 syntax highlighting, and encrypted credentials. Also supports
-paste.debian.net, dpaste.com, paste.ubuntu.com, sprunge.us,
-paste.opendev.org, bpa.st, and paste.opensuse.org.
+paste.debian.net, dpaste.com, paste.ubuntu.com, paste.opendev.org, and bpa.st.
 
 ## Features
 
@@ -20,7 +17,7 @@ paste.opendev.org, bpa.st, and paste.opensuse.org.
 - **Encrypted credentials** — Fernet/PBKDF2 keystore or OS keyring (GNOME/KWallet)
 - **Folder support** — upload to pastebin.com folders, auto-create if missing
 - **Full pastebin.com API** — login, list/delete pastes, user info, privacy, expiry
-- **8 backends** — each integrated to the full extent of their API
+- **6 backends** — each integrated to the full extent of their API
 - **TOML config** — per-backend defaults in `~/.config/pastebinit/config.toml`
 - **Proper Debian package** — man page, bash completion, standard install paths
 
@@ -85,13 +82,11 @@ export PASTEBIN_PASSWORD="your_password"
 | Backend | Auth | Folders | Expiry | Privacy | Syntax |
 |---|:---:|:---:|:---:|:---:|:---:|
 | pastebin.com | ✅ | ✅ | ✅ | ✅ | ✅ 200+ |
-| paste.debian.net | ✅ | ❌ | ✅ | ✅ | ✅ |
+| paste.debian.net | ❌ | ❌ | ✅ | ✅ | ❌ |
 | dpaste.com | ❌ | ❌ | ✅ | ✅ | ✅ |
 | paste.ubuntu.com | ❌ | ❌ | ❌ | ✅ | ✅ |
-| sprunge.us | ❌ | ❌ | ❌ | ❌ | ✅ |
-| paste.opendev.org | ✅ | ❌ | ✅ | ✅ | ✅ |
+| paste.opendev.org | ❌ | ❌ | ❌ | ✅ | ✅ |
 | bpa.st | ❌ | ❌ | ✅ | ✅ | ✅ |
-| paste.opensuse.org | ❌ | ❌ | ✅ | ❌ | ✅ |
 
 ## Configuration
 
