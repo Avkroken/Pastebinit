@@ -1,6 +1,6 @@
 import urllib.parse
 import urllib.request
-from .base import BasePastebin, PasteOptions, BackendError
+from .base import BasePastebin, PasteOptions, BackendError, USER_AGENT
 
 _EXPIRY = {"N": "year", "1D": "day", "1W": "week", "1M": "month", "1Y": "year"}
 _SYNTAX_MAP = {
@@ -27,7 +27,7 @@ class PasteUbuntuCom(BasePastebin):
         }
         data = urllib.parse.urlencode(params).encode()
         req = urllib.request.Request("https://paste.ubuntu.com/", data=data)
-        req.add_header("User-Agent", "pastebinit/2.0.0")
+        req.add_header("User-Agent", USER_AGENT)
         try:
             with urllib.request.urlopen(req, timeout=15) as resp:
                 return resp.url

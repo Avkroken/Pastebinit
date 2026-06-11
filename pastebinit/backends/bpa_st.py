@@ -1,6 +1,6 @@
 import json
 import urllib.request
-from .base import BasePastebin, PasteOptions, BackendError
+from .base import BasePastebin, PasteOptions, BackendError, USER_AGENT
 
 _API = "https://bpa.st/api/v1/paste"
 # bpa.st currently only reliably supports "1day"; other values cause 400/500
@@ -23,7 +23,7 @@ class BpaSt(BasePastebin):
         }).encode()
         req = urllib.request.Request(_API, data=payload)
         req.add_header("Content-Type", "application/json")
-        req.add_header("User-Agent", "pastebinit/2.0.0")
+        req.add_header("User-Agent", USER_AGENT)
         try:
             with urllib.request.urlopen(req, timeout=15) as resp:
                 result = json.loads(resp.read())

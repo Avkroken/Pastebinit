@@ -2,6 +2,10 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from typing import Optional
 
+from pastebinit import __version__
+
+USER_AGENT = f"pastebinit/{__version__}"
+
 
 class BackendError(Exception):
     pass

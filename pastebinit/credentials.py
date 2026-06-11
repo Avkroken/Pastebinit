@@ -59,7 +59,7 @@ def _keystore_get(backend: str, field: str, password: str) -> Optional[str]:
         key = _derive_key(password, salt)
         decrypted = json.loads(Fernet(key).decrypt(token))
         return decrypted.get(backend, {}).get(field)
-    except (InvalidToken, Exception):
+    except Exception:
         return None
 
 
@@ -99,3 +99,20 @@ def store(backend: str, field: str, value: str, password: str) -> None:
     """Store credential in keyring if available, else encrypted keystore."""
     if not _keyring_set(backend, field, value):
         _keystore_set(backend, field, value, password)
+
+
+def clear(backend: str) -> bool:
+    """Remove OS-keyring credentials for a backend. Returns True if anything was deleted."""
+    deleted = False
+    try:
+        import keyring
+        import keyring.errors
+        for field in ("username", "user_key", "api_dev_key", "password"):
+            try:
+                keyring.delete_password(f"pastebinit:{backend}", field)
+                deleted = True
+            except keyring.errors.PasswordDeleteError:
+                pass
+    except Exception:
+        pass
+    return deleted

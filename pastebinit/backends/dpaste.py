@@ -1,6 +1,6 @@
 import urllib.parse
 import urllib.request
-from .base import BasePastebin, PasteOptions, BackendError
+from .base import BasePastebin, PasteOptions, BackendError, USER_AGENT
 
 _API = "https://dpaste.com/api/v2/"
 _EXPIRY_MAP = {"N": "365", "1D": "1", "1W": "7", "1M": "30", "1Y": "365"}
@@ -24,7 +24,7 @@ class DPaste(BasePastebin):
         }
         data = urllib.parse.urlencode(params).encode()
         req = urllib.request.Request(_API, data=data)
-        req.add_header("User-Agent", "pastebinit/2.0.0")
+        req.add_header("User-Agent", USER_AGENT)
         try:
             with urllib.request.urlopen(req, timeout=15) as resp:
                 return resp.read().decode().strip()

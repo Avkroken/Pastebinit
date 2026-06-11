@@ -1,6 +1,6 @@
 import urllib.parse
 import urllib.request
-from .base import BasePastebin, PasteOptions, BackendError
+from .base import BasePastebin, PasteOptions, BackendError, USER_AGENT
 
 
 class PasteOpenDev(BasePastebin):
@@ -16,7 +16,7 @@ class PasteOpenDev(BasePastebin):
             params["private"] = "on"
         data = urllib.parse.urlencode(params).encode()
         req = urllib.request.Request("https://paste.opendev.org/", data=data)
-        req.add_header("User-Agent", "pastebinit/2.0.0")
+        req.add_header("User-Agent", USER_AGENT)
         try:
             with urllib.request.urlopen(req, timeout=15) as resp:
                 return resp.url
