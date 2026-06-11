@@ -8,6 +8,7 @@ from pastebinit.backends import get_backend, BACKENDS, DEFAULT_BACKEND
 from pastebinit.backends.base import PasteOptions, BackendError, AuthError, NotSupportedError
 from pastebinit import config as cfg
 from pastebinit import credentials
+from pastebinit.credentials import KEYSTORE_FILE
 from pastebinit.syntax import detect
 
 
@@ -42,15 +43,18 @@ def build_parser() -> argparse.ArgumentParser:
     return p
 
 
+def _yn(v: bool) -> str:
+    return "yes" if v else "no"
+
+
 def _print_backends():
     header = f"{'Backend':<22} {'Auth':^4} {'Folders':^7} {'Expiry':^6} {'Privacy':^7} {'Syntax':^6}"
     print(header)
     print("-" * len(header))
     for name, cls in sorted(BACKENDS.items()):
         b = cls()
-        def yn(v): return "yes" if v else "no"
-        print(f"{name:<22} {yn(b.supports_auth):^4} {yn(b.supports_folders):^7} "
-              f"{yn(b.supports_expiry):^6} {yn(b.supports_privacy):^7} {yn(b.supports_syntax):^6}")
+        print(f"{name:<22} {_yn(b.supports_auth):^4} {_yn(b.supports_folders):^7} "
+              f"{_yn(b.supports_expiry):^6} {_yn(b.supports_privacy):^7} {_yn(b.supports_syntax):^6}")
 
 
 def run(args: argparse.Namespace) -> Optional[str]:
@@ -75,7 +79,13 @@ def run(args: argparse.Namespace) -> Optional[str]:
         return None
 
     if args.logout:
-        print(f"Credentials for {args.backend} cleared.")
+        deleted = credentials.clear(args.backend)
+        if deleted:
+            print(f"Credentials for {args.backend} cleared.")
+        else:
+            print(f"No stored credentials found for {args.backend}.")
+            if KEYSTORE_FILE.exists():
+                print(f"Note: encrypted keystore at {KEYSTORE_FILE} may still contain credentials.")
         return None
 
     filenames = args.files or ["-"]

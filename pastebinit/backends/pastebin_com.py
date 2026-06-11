@@ -3,11 +3,10 @@ import urllib.request
 import xml.etree.ElementTree as ET
 from typing import Optional
 
-from .base import BasePastebin, PasteOptions, AuthError, BackendError
+from .base import BasePastebin, PasteOptions, AuthError, BackendError, USER_AGENT
 
 _API = "https://pastebin.com/api/api_post.php"
 _LOGIN = "https://pastebin.com/api/api_login.php"
-_USER_AGENT = "pastebinit/2.0.0"
 
 _EXPIRY = {"N", "10M", "1H", "1D", "1W", "2W", "1M", "6M", "1Y"}
 
@@ -38,7 +37,7 @@ class PastebinCom(BasePastebin):
     def _post(self, url: str, params: dict) -> str:
         data = urllib.parse.urlencode(params).encode()
         req = urllib.request.Request(url, data=data)
-        req.add_header("User-Agent", _USER_AGENT)
+        req.add_header("User-Agent", USER_AGENT)
         try:
             with urllib.request.urlopen(req, timeout=15) as resp:
                 result = resp.read().decode()
