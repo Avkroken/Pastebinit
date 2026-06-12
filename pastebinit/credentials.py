@@ -80,10 +80,8 @@ def _keystore_set(backend: str, field: str, value: str, password: str) -> None:
     # window where the file is readable by other users.
     fd = os.open(KEYSTORE_FILE, os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
                  stat.S_IRUSR | stat.S_IWUSR)
-    try:
-        os.write(fd, salt + encrypted)
-    finally:
-        os.close(fd)
+    with os.fdopen(fd, "wb") as f:
+        f.write(salt + encrypted)
     KEYSTORE_FILE.chmod(stat.S_IRUSR | stat.S_IWUSR)
 
 
