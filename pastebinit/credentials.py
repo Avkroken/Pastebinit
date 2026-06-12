@@ -76,7 +76,14 @@ def _keystore_set(backend: str, field: str, value: str, password: str) -> None:
     salt = os.urandom(16)
     existing.setdefault(backend, {})[field] = value
     encrypted = Fernet(_derive_key(password, salt)).encrypt(json.dumps(existing).encode())
-    KEYSTORE_FILE.write_bytes(salt + encrypted)
+    # Create with 0600 from the start — write_bytes + chmod would leave a
+    # window where the file is readable by other users.
+    fd = os.open(KEYSTORE_FILE, os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
+                 stat.S_IRUSR | stat.S_IWUSR)
+    try:
+        os.write(fd, salt + encrypted)
+    finally:
+        os.close(fd)
     KEYSTORE_FILE.chmod(stat.S_IRUSR | stat.S_IWUSR)
 
 
