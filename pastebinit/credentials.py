@@ -80,9 +80,11 @@ def _keystore_set(backend: str, field: str, value: str, password: str) -> None:
     # window where the file is readable by other users.
     fd = os.open(KEYSTORE_FILE, os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
                  stat.S_IRUSR | stat.S_IWUSR)
+    # The mode above only applies when the file is created; fchmod tightens
+    # permissions on a pre-existing keystore before any content is written.
+    os.fchmod(fd, stat.S_IRUSR | stat.S_IWUSR)
     with os.fdopen(fd, "wb") as f:
         f.write(salt + encrypted)
-    KEYSTORE_FILE.chmod(stat.S_IRUSR | stat.S_IWUSR)
 
 
 def get(backend: str, field: str) -> Optional[str]:
