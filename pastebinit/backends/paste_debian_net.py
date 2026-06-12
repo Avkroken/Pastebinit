@@ -32,4 +32,8 @@ class PasteDebianNet(BasePastebin):
             raise BackendError(f"paste.debian.net error: {e}") from e
         if "error" in result:
             raise BackendError(f"paste.debian.net error: {result['error']}")
-        return result.get("url", f"https://paste.debian.net/hidden/{result['id']}")
+        if "url" in result:
+            return result["url"]
+        if "id" in result:
+            return f"https://paste.debian.net/hidden/{result['id']}"
+        raise BackendError(f"paste.debian.net error: unexpected response {result}")

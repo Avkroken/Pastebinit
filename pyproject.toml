@@ -13,7 +13,7 @@ authors = [
 ]
 requires-python = ">=3.10"
 dependencies = [
-  "cryptography>=41",
+  "cryptography>=42.0.4",
   "keyring>=24",
   "tomli-w>=1.0",
   "tomli>=2.0; python_version < '3.11'",
