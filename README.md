@@ -1,7 +1,8 @@
 # pastebinit
 
+[![CI](https://github.com/blixten85/pastebinit/actions/workflows/ci.yml/badge.svg)](https://github.com/blixten85/pastebinit/actions/workflows/ci.yml)
 [![Version](https://img.shields.io/github/v/release/blixten85/pastebinit)](https://github.com/blixten85/pastebinit/releases)
-[![License](https://img.shields.io/badge/license-GPL--2.0%2B-blue)](LICENSE)
+[![License](https://img.shields.io/github/license/blixten85/pastebinit)](LICENSE)
 
 Send text and files to pastebin services from the command line.
 
