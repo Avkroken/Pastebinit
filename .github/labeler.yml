@@ -1,15 +1,28 @@
+pastebinit:
+  - changed-files:
+    - any-glob-to-any-file: 'pastebinit/**'
+
+tests:
+  - changed-files:
+    - any-glob-to-any-file: 'tests/**'
+
+docs:
+  - changed-files:
+    - any-glob-to-any-file: 'docs/**'
+
+debian:
+  - changed-files:
+    - any-glob-to-any-file: 'debian/**'
+
 ci:
   - changed-files:
     - any-glob-to-any-file: '.github/**'
 
 documentation:
   - changed-files:
-    - any-glob-to-any-file: ['**.md', 'debian/pastebinit.1']
+    - any-glob-to-any-file:
+      - '**.md'
 
 dependencies:
   - changed-files:
-    - any-glob-to-any-file: 'pyproject.toml'
-
-debian:
-  - changed-files:
-    - any-glob-to-any-file: 'debian/**'
+    - any-glob-to-any-file: '**/requirements*.txt'
