@@ -17,4 +17,3 @@ updates:
     groups:
       github-actions:
         update-types: ["minor", "patch", "major"]
-

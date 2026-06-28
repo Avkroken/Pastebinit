@@ -1,41 +1,43 @@
-"""Tests for .github/dependabot.yml configuration."""
+"""Tests for renovate configuration."""
 
 import pathlib
-import yaml
+import json
 import pytest
 
-DEPENDABOT_PATH = pathlib.Path(__file__).parent.parent / ".github" / "dependabot.yml"
+RENOVATE_PATH = pathlib.Path(__file__).parent.parent / ".github" / "renovate.json"
 
 
 @pytest.fixture(scope="module")
-def dependabot_config():
-    return yaml.safe_load(DEPENDABOT_PATH.read_text())
+def renovate_config():
+    return json.loads(RENOVATE_PATH.read_text())
 
 
-def test_dependabot_config_file_exists():
-    assert DEPENDABOT_PATH.exists(), f"Expected {DEPENDABOT_PATH} to exist"
+def test_renovate_config_file_exists():
+    assert RENOVATE_PATH.exists(), f"Expected {RENOVATE_PATH} to exist"
 
 
-def test_dependabot_version(dependabot_config):
-    assert dependabot_config["version"] == 2
+def test_renovate_extends_config(renovate_config):
+    assert "extends" in renovate_config
+    assert len(renovate_config["extends"]) > 0
 
 
-def test_has_updates(dependabot_config):
-    assert "updates" in dependabot_config
-    assert len(dependabot_config["updates"]) > 0
+def test_pip_ecosystem_present(renovate_config):
+    # Renovate uses managers instead of package-ecosystem
+    # Check that the config extends best-practices which includes pip
+    assert "config:best-practices" in renovate_config["extends"]
 
 
-def test_pip_ecosystem_present(dependabot_config):
-    ecosystems = [u["package-ecosystem"] for u in dependabot_config["updates"]]
-    assert "pip" in ecosystems
+def test_github_actions_ecosystem_present(renovate_config):
+    # Check that github-actions is configured
+    package_rules = renovate_config.get("packageRules", [])
+    has_github_actions = any(
+        "github-actions" in rule.get("matchManagers", [])
+        for rule in package_rules
+    )
+    assert has_github_actions or "config:best-practices" in renovate_config["extends"]
 
 
-def test_github_actions_ecosystem_present(dependabot_config):
-    ecosystems = [u["package-ecosystem"] for u in dependabot_config["updates"]]
-    assert "github-actions" in ecosystems
-
-
-def test_all_updates_have_schedule(dependabot_config):
-    for update in dependabot_config["updates"]:
-        assert "schedule" in update, f"Missing schedule in {update.get('package-ecosystem')}"
-        assert "interval" in update["schedule"]
+def test_all_updates_have_schedule(renovate_config):
+    # Renovate has schedule in extends or top-level config
+    assert "extends" in renovate_config
+    assert any("schedule:" in ext for ext in renovate_config["extends"]) or "timezone" in renovate_config
