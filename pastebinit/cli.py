@@ -1,7 +1,10 @@
 import argparse
 import getpass
+import os
 import sys
 from typing import Optional
+
+import sentry_sdk
 
 from pastebinit import __version__
 from pastebinit.backends import get_backend, BACKENDS, DEFAULT_BACKEND
@@ -146,6 +149,14 @@ def run(args: argparse.Namespace) -> Optional[str]:
 
 
 def main():
+    dsn = os.getenv("SENTRY_DSN")
+    if dsn:
+        sentry_sdk.init(dsn=dsn, traces_sample_rate=1.0, send_default_pii=False)
+
     parser = build_parser()
     args = parser.parse_args()
-    run(args)
+    try:
+        run(args)
+    except Exception as e:
+        sentry_sdk.capture_exception(e)
+        raise

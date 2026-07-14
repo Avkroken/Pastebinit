@@ -13,7 +13,8 @@ Architecture: any
 Depends: ${python3:Depends}, ${misc:Depends},
  python3-cryptography,
  python3-keyring,
- python3-tomli-w
+ python3-tomli-w,
+ python3-sentry-sdk
 Suggests: python3-keyring-gnome, python3-magic
 Description: send data to a pastebin from the command line
  pastebinit reads from standard input or files and sends the content
