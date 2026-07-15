@@ -152,14 +152,22 @@ def main():
     dsn = os.getenv("SENTRY_DSN")
     if dsn:
         try:
-            sentry_sdk.init(dsn=dsn, traces_sample_rate=1.0, send_default_pii=False, include_local_variables=False)
+            def before_send(event, hint):
+                # Strip sensitive command-line arguments from Sentry events
+                if "extra" in event:
+                    event["extra"].pop("sys.argv", None)
+                return event
+
+            sentry_sdk.init(
+                dsn=dsn,
+                traces_sample_rate=1.0,
+                send_default_pii=False,
+                include_local_variables=False,
+                before_send=before_send
+            )
         except Exception as e:
             print(f"Warning: failed to initialize Sentry: {e}", file=sys.stderr)
 
     parser = build_parser()
     args = parser.parse_args()
-    try:
-        run(args)
-    except Exception as e:
-        sentry_sdk.capture_exception(e)
-        raise
+    run(args)
