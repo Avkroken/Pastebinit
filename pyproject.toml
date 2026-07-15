@@ -14,7 +14,7 @@ authors = [
 requires-python = ">=3.10"
 dependencies = [
   "cryptography>=49.0.0",
-  "keyring>=24.3.1",
+  "keyring>=25.7.0",
   "tomli-w>=1.2.0",
   "tomli>=2.4.1; python_version < '3.11'",
   "sentry-sdk>=1.39.2",
