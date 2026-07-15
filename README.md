@@ -104,10 +104,11 @@ username = "myuser"
 
 ## Development
 
-`SENTRY_DSN` (optional) — set this environment variable to enable crash
-reporting via [Sentry](https://sentry.io) for development builds. It is
+`SENTRY_DSN` (optional) — setting this environment variable enables crash
+reporting via [Sentry](https://sentry.io) for any CLI installation. It is
 unset by default, so no telemetry is ever sent unless you explicitly
-configure your own DSN. Not something end users need to set.
+configure your own DSN. If you run packaged builds with `SENTRY_DSN` set
+in your environment, telemetry will be sent to that DSN.
 
 ## Bash Completion
 
