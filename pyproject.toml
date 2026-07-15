@@ -17,6 +17,7 @@ dependencies = [
   "keyring>=24.3.1",
   "tomli-w>=1.2.0",
   "tomli>=2.4.1; python_version < '3.11'",
+  "sentry-sdk>=1.39.2",
 ]
 
 [project.optional-dependencies]
