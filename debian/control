@@ -2,7 +2,7 @@ Source: pastebinit
 Section: utils
 Priority: optional
 Maintainer: Anders Eriksson <36226327+blixten85@users.noreply.github.com>
-Build-Depends: debhelper-compat (= 13), dh-python, python3-all, pybuild-plugin-pyproject, bash-completion, python3-sentry-sdk (>= 1.39.2)
+Build-Depends: debhelper-compat (= 13), dh-python, python3-all, pybuild-plugin-pyproject, bash-completion
 Standards-Version: 4.6.2
 Homepage: https://github.com/blixten85/pastebinit
 Vcs-Browser: https://github.com/blixten85/pastebinit
