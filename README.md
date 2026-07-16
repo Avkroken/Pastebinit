@@ -102,13 +102,6 @@ format = "auto"
 username = "myuser"
 ```
 
-## Development
-
-`SENTRY_DSN` (optional) — set this environment variable to enable crash
-reporting via [Sentry](https://sentry.io) for development builds. It is
-unset by default, so no telemetry is ever sent unless you explicitly
-configure your own DSN. Not something end users need to set.
-
 ## Bash Completion
 
 Included in the `.deb` package. To install manually:
