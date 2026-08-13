@@ -2,13 +2,13 @@ name: Build
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
     paths-ignore:
       - '**.md'
       - '.github/**'
       - '!.github/workflows/build.yml'
   pull_request:
-    branches: [main]
+    branches: [main, dev]
   workflow_dispatch:
     inputs:
       tag:
