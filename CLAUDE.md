@@ -52,3 +52,24 @@ To manually rebuild a `.deb` for an existing tag, use `workflow_dispatch` in `bu
 - Never hardcode credentials — use keyring
 - Tests live in `tests/` and must pass before merging
 - `.deb` and build artifacts are gitignored — never commit them
+
+## Allowed
+- Committa på dev
+- Modify code
+- Run tests
+- Open PRs
+
+## Forbidden
+- Push directly to main/master
+- Merge PRs
+- Skapa eller ta bort grenar (rulesetet blockerar det)
+- Disable workflows
+- Modify secrets
+- Change GitHub org settings
+
+## Requirements
+- All tests must pass
+- Keep PRs focused
+- Never include unrelated changes
+- Never commit credentials
+- Never force push
