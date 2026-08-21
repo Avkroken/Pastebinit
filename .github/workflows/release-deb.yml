@@ -1,4 +1,4 @@
-name: Release .deb
+name: Build & upload .deb release
 
 # Byggs bara på begäran för en tagg som redan är släppt, och laddas upp till
 # den releasen. Ligger i en egen fil eftersom den inte har något på en PR att
