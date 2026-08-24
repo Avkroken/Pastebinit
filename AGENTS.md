@@ -19,9 +19,9 @@ Release- och `.deb`-workflows ska hållas separerade från PR-CI. Manuella ombyg
 
 1. Skapa en kortlivad branch från aktuell `main` för varje uppgift.
 2. Kör relevanta tester och packaging-kontroller innan push.
-3. Öppna PR från arbetsbranchen till `main` som klar för granskning. Aktivera inte auto-merge.
+3. Öppna PR från arbetsbranchen till `main` som klar för granskning. Auto-merge är tillåtet och får aktiveras när PR:n är redo; GitHub mergar först när alla ruleset-krav är uppfyllda.
 4. Lös CI- och reviewproblem på samma branch tills required checks är gröna och review-trådar lösta.
-5. Merge sker med **squash merge**. Använd inte merge commits eller rebase merge. Head-branchen får raderas efter merge.
+5. **Squash merge är den enda tillåtna merge-metoden.** Använd inte merge commits eller rebase merge. Repot är konfigurerat att automatiskt radera head-branchen efter merge.
 
 Skicka inte direkt till `main`, kringgå inte branch protection/rulesets och ändra inte hemligheter eller organisationsinställningar utan uttrycklig instruktion.
 
