@@ -54,6 +54,7 @@ jobs:
           BASE_SHA=$(git rev-parse FETCH_HEAD)
           OWNER="${GITHUB_REPOSITORY%%/*}"
           FAILED=""
+
           for SLOT in $SLOTS; do
             echo "::group::$SLOT"
             if ! git ls-remote --exit-code --heads origin "$SLOT" >/dev/null 2>&1; then
@@ -64,17 +65,25 @@ jobs:
             PREV=$(git rev-parse FETCH_HEAD)
             OPEN_PRS=$(gh api -H 'Accept: application/vnd.github+json' "repos/${GITHUB_REPOSITORY}/pulls?state=open&head=${OWNER}:${SLOT}&base=${BASE}&per_page=100" --jq 'length' 2>/dev/null || true)
             case "$OPEN_PRS" in ''|*[!0-9]*) FAILED="$FAILED $SLOT"; echo "::endgroup::"; continue ;; esac
+
             if [ "$OPEN_PRS" -eq 0 ]; then
               if [ "$PREV" != "$BASE_SHA" ]; then
                 AHEAD=$(git rev-list --count "$BASE_SHA..$PREV" 2>/dev/null || echo 0)
+                BEHIND=$(git rev-list --count "$PREV..$BASE_SHA" 2>/dev/null || echo 0)
                 case "$SLOT" in
                   work/*)
                     if [ "${GITHUB_EVENT_NAME:-}" = "pull_request" ] && [ "${CLOSED_HEAD:-}" = "$SLOT" ] && [ "${CLOSED_HEAD_SHA:-}" = "$PREV" ]; then
                       echo "$SLOT hör till stängd PR och tippen matchar; återställs direkt."
-                    elif [ "$AHEAD" -gt 0 ]; then
+                    elif [ "$AHEAD" -gt 0 ] && [ "$BEHIND" -eq 0 ]; then
                       COMMITTED_AT=$(git show -s --format=%ct "$PREV" 2>/dev/null || echo 0)
                       NOW=$(date +%s); AGE_MINUTES=$(( (NOW - COMMITTED_AT) / 60 ))
                       if [ "$COMMITTED_AT" -gt 0 ] && [ "$AGE_MINUTES" -lt "$WATCHDOG_GRACE_MINUTES" ]; then echo "$SLOT har oskyddat arbete (${AGE_MINUTES} min); lämnas för watchdog."; else echo "$SLOT saknar durabelt PR-skydd; lämnas orörd tills watchdog öppnat PR."; fi
+                      echo "::endgroup::"; continue
+                    elif [ "$AHEAD" -gt 0 ] && [ "$BEHIND" -gt 0 ]; then
+                      echo "$SLOT är divergerad; rebasar oskyddat arbete på $BASE innan watchdog får öppna PR."
+                      git checkout -B "sync-$SLOT" "$PREV" >/dev/null 2>&1
+                      if ! git rebase --empty=drop "$BASE_SHA"; then git rebase --abort || true; FAILED="$FAILED $SLOT"; echo "::endgroup::"; continue; fi
+                      if ! git push --force-with-lease="refs/heads/$SLOT:$PREV" origin "HEAD:refs/heads/$SLOT"; then FAILED="$FAILED $SLOT"; fi
                       echo "::endgroup::"; continue
                     fi ;;
                 esac
@@ -84,10 +93,12 @@ jobs:
               [ "$REMOTE_SHA" = "$BASE_SHA" ] || FAILED="$FAILED $SLOT"
               echo "::endgroup::"; continue
             fi
+
             if [ "$PREV" = "$BASE_SHA" ]; then echo "::endgroup::"; continue; fi
             git checkout -B "sync-$SLOT" "$PREV" >/dev/null 2>&1
             if ! git rebase --empty=drop "$BASE_SHA"; then git rebase --abort || true; FAILED="$FAILED $SLOT"; echo "::endgroup::"; continue; fi
             if [ "$(git rev-parse HEAD)" != "$PREV" ]; then git push --force-with-lease="refs/heads/$SLOT:$PREV" origin "HEAD:refs/heads/$SLOT" || FAILED="$FAILED $SLOT"; fi
             echo "::endgroup::"
           done
+
           if [ -n "$FAILED" ]; then echo "::error::Slots som inte kunde synkas:$FAILED"; exit 1; fi
