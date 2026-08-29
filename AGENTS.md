@@ -46,7 +46,7 @@ Om auto-merge inte sker ska den konkreta blockeraren i live-ruleset, review-stat
 - `.github/workflows/ci.yml` producerar required context `python`.
 - `.github/workflows/osv-scanner.yml` är kompletterande dependency-/sårbarhetsverifiering och är inte required context i nuvarande ruleset.
 - `.github/workflows/release-deb.yml` är ett manuellt releasejobb för en redan existerande tagg och ska inte blandas in i PR-CI.
-- `.github/workflows/codex-issue-remediation.yml` skapar en unik tillfällig `automation/codex-issue-<nummer>`-branch och armerar auto-merge direkt.
+- `.github/workflows/codex-issue-remediation.yml` skapar en körningsunik tillfällig branch under `automation/codex-issue/` och armerar auto-merge direkt. Dessa branches undantas från PR-watchdog; repots `delete_branch_on_merge` tar bort dem efter merge.
 - `.github/workflows/pr-watchdog.yml` kan öppna en PR för en lokal branch med unika commits som saknat PR för länge och armerar auto-merge direkt. State ligger på `automation/pr-watchdog-state`.
 - `.github/workflows/auto-fix-review.yml` får begära en Codex-fix för uttryckligen betrodd review-feedback men får inte lösa review-tråden åt implementationen.
 
