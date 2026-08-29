@@ -78,7 +78,8 @@ jobs:
         shell: bash
         env:
           ISSUE_NUMBER: ${{ steps.gate.outputs.issue_number }}
-        run: echo "name=automation/codex-issue-${ISSUE_NUMBER}" >> "$GITHUB_OUTPUT"
+          RUN_ID: ${{ github.run_id }}
+        run: echo "name=automation/codex-issue-${ISSUE_NUMBER}-${RUN_ID}" >> "$GITHUB_OUTPUT"
 
       - name: Skapa seed-commit
         if: steps.gate.outputs.eligible == 'true' && steps.existing.outputs.exists != 'true'
