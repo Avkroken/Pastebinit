@@ -1,196 +1,81 @@
 # AGENTS.md
 
-This file defines the working rules for AI coding agents operating in this repository.
+Den här filen innehåller instruktioner för AI-agenter som arbetar i repositoryt. Live repository configuration är verkställande sanning: när dokumentation och faktisk GitHub-enforcement skiljer sig ska den tillämpliga live-regeln följas och mismatchen rapporteras.
 
-Repository-local instructions and the live repository configuration are authoritative. When documentation and enforced GitHub settings differ, follow the stricter applicable rule and report the mismatch.
+Root-`AGENTS.md` är den auktoritativa källan för repositoryövergripande agentpolicy. En mer specifik `AGENTS.md` längre ned i katalogträdet får lägga till regler för sitt subtree, men ska inte duplicera eller motsäga den repositoryövergripande policyn.
 
-## Before Making Changes
+Följ dessutom de repository-specifika instruktionerna längre ned i denna fil.
 
-1. Read this `AGENTS.md` completely.
-2. Read the relevant repository documentation and configuration before changing code.
-3. Inspect the current branch, active pull requests, CI status, review state, and applicable GitHub rules before substantial changes.
-4. Prefer finishing an already active pull request before starting parallel work in the same repository when the current work belongs in that PR.
-5. Inspect nearby code and tests before introducing new patterns or abstractions.
+<!-- AVKROKEN-COMMON:START -->
 
-Relevant repository context may include:
+## Arbetsprincip
 
-- `README.md`
-- `DESIGN.md`
-- `package.json`
-- framework configuration
-- lint and formatting configuration
-- TypeScript configuration
-- test configuration
-- workflow files under `.github/workflows/`
-- repository-local governance or workflow-contract files, when present
+Leverera fungerande, verifierade och avgränsade ändringar. CI, GitHub Copilot Code Review och mänskliga reviewers är oberoende verifieringslager och ska inte vara den första debuggern för fel som agenten rimligen kan upptäcka själv före en pull request. Ändra inte mer än uppgiften kräver och bevara befintlig arkitektur och repository-specifika konventioner. Inför inte breaking changes om de inte uttryckligen krävs av uppgiften.
 
-Do not assume that documentation is enforced. Verify live configuration when enforcement matters.
+## Innan implementation
 
-## Scope of Changes
+1. Läs denna fil och eventuell närmare `AGENTS.md` för de filer som berörs.
+2. Läs relevant implementation, tester, konfiguration och närliggande dokumentation innan lösningen bestäms.
+3. Identifiera repositoryts faktiska build-, test-, lint-, typecheck- och CI-kommandon från befintlig konfiguration.
+4. Följ repositoryts branchmodell. Skapa inte egna branchkonventioner och anta inte att en policy är ruleset-enforced utan att den faktiskt är det.
+5. Gör minsta kompletta ändring som löser problemet.
 
-- Make the smallest change that fully solves the requested task.
-- Keep each pull request focused on one logical change.
-- Avoid unrelated cleanup or refactoring.
-- Preserve existing architecture, code style, naming, and project conventions unless the task requires changing them.
-- Prefer existing utilities, components, dependencies, and framework-native APIs over new abstractions or dependencies.
-- Do not introduce breaking changes unless they are explicitly required.
+## Pre-PR quality gate
 
-## Branch and Pull Request Policy
+Innan en ready pull request skapas eller uppdateras ska agenten granska hela den egna diffen mot PR:ns base branch, kontrollera korrekthet, säkerhet, felhantering, kompatibilitet och relevanta edge cases, köra relevanta tester samt tillämplig lint/typecheck/build, lägga till eller uppdatera tester när beteende ändras och detta är praktiskt testbart, kontrollera att inga secrets/credentials/debugrester/oavsiktliga filer lagts till och fixa legitima egna findings före extern review. Efter senare commits ska påverkad validering köras igen; om full validering inte är möjlig ska begränsningen dokumenteras konkret.
 
-1. Never push directly to `main`.
-2. Create a short-lived working branch for each logical change.
-3. Open a pull request targeting `main`.
-4. Enable repository-supported **auto-merge immediately after the pull request is created**.
-5. Keep auto-merge armed while CI, reviews, approvals, or other merge gates are still pending.
+## Review-signal
 
-Use the repository's configured merge method. If squash merge is the only permitted method, use squash auto-merge.
+Prioritera funktionell och teknisk signal framför redaktionell puts. Rapportera inte rena stavnings-, grammatik-, interpunktions-, wording- eller stilfel i mänskligt läsbar prosa. Rapportera däremot textfel som materiellt kan ändra teknisk betydelse, säkerhet, korrekthet, användarbeteende eller bokstavliga instruktioner samt typos i maskin- eller semantikbärande innehåll såsom identifierare, strängkonstanter, paths, config keys, environment-variabler, API-fält, kommandon, flags, selectors, protokoll- och enumvärden.
 
-Direct or manual merge is allowed only when explicitly requested and permitted by repository rules.
+## Reviewnivå och eskalering
 
-Never bypass:
+Använd lägsta reviewnivå som ger tillräcklig säkerhet. Low använder Copilot Lite; Medium använder Balanced; High använder minst Balanced och vid behov den installerade OpenAI Codex-agenten via det faktiska GitHub-handle som GitHub visar; Critical använder Balanced + Codex och vid kvarstående kritisk tvetydighet den installerade Anthropic Claude-agenten via dess faktiska GitHub-handle. Gissa eller hårdkoda inte mention-namn från andra workflows eller exempel. Bygg inte ett nytt router-workflow enbart för eskaleringen.
 
-- branch protection;
-- rulesets;
-- required status checks;
-- required reviews or approvals;
-- required review-thread resolution;
-- merge queues;
-- force-push restrictions; or
-- other repository protections.
+## Pull request och merge
 
-## Merge Gates
+Pusha aldrig direkt till `main`. Följ repositoryts branchmodell och skapa en ready PR först när pre-PR-gaten är genomförd.
 
-A pull request is complete only when every repository-required merge condition is satisfied.
+Efter varje ny commit eller push ska aktuell HEAD, required checks/CI, mergeability och mergekonflikter verifieras igen. Läs och utvärdera dessutom alla review-kommentarer och alla nya, öppna eller återöppnade review-trådar; relevanta findings ska åtgärdas innan PR:n betraktas som klar.
 
-At minimum:
+När GitHub bedömer PR:n som direkt mergebar och alla tillämpliga live gates är uppfyllda — required checks/CI är godkända, inga mergekonflikter finns, inga relevanta obligatoriskt olösta review-trådar eller andra blockers återstår och ingen relevant review-feedback är outhanterad — ska PR:n mergas omedelbart.
 
-- every required CI check is successful;
-- every relevant review comment has been read and evaluated;
-- every required review thread is resolved;
-- every relevant review finding has been fixed when necessary;
-- CI status has been checked again after the latest commit;
-- review status has been checked again after the latest commit;
-- required approvals, if any, are present;
-- applicable rulesets, branch protection, and merge-queue requirements are satisfied; and
-- auto-merge remains armed.
+Försök inte aktivera auto-merge på en PR som redan är direkt mergebar. Använd auto-merge när PR:n ännu inte kan mergas enbart därför att obligatoriska gates fortfarande väntar och repositoryt stöder auto-merge. Repositoryts live ruleset, merge queue och inställningar bestämmer tillåten merge-metod. Forcera eller kringgå inte repositoryskydd.
 
-Do not infer approval requirements or required check names from another repository.
+## Credentials och AI-infrastruktur
 
-If the pull request does not auto-merge after all known gates are satisfied, inspect the live repository configuration and identify the exact remaining blocker.
+Committa eller exponera aldrig secrets, tokens, privata nycklar eller andra credentials. Lägg inte till externa AI-provider-credentials eller ändra billing/Copilot-policy/repository secrets/organisationsinställningar enbart för AI-routing utan uttryckligt ägargodkännande. Föredra befintliga GitHub/Copilot-native mekanismer.
 
-## Review Handling
+## Verifiering efter ändringar
 
-Read and evaluate every review comment before considering a pull request complete.
+Ett lyckat API-svar, workflow-anrop eller deployment-request är inte i sig bevis på att ändringen är aktiv. När uppgiften ändrar GitHub-inställningar, permissions, deployments, routes, bindings eller annan runtime-/live-konfiguration ska relevant resulterande state verifieras efter ändringen.
 
-For each review comment:
+## Definition of done
 
-1. Determine whether it identifies a relevant issue.
-2. If it does, fix the issue in the same pull request.
-3. Run the relevant validation after the fix.
-4. Push the change to the existing pull request branch.
-5. Re-check CI and the complete review state.
+För en uppgift som skapar eller uppdaterar en pull request är arbetet inte klart förrän implementationen är färdig och avgränsad, relevanta tester/checks har körts eller begränsningen dokumenterats, diffen självgranskats, all review-feedback lästs och utvärderats, legitima findings åtgärdats, PR-status verifierats mot aktuell HEAD, eventuell live-state verifierats när tillämpligt och PR:n antingen mergats när alla gates är uppfyllda eller har auto-merge aktiverat när endast väntande obligatoriska gates återstår.
 
-Do not resolve a review thread solely to remove a merge blocker.
+För read-only reviews, investigations, frågor eller live-konfigurationsuppgifter utan PR gäller inte PR-/mergekraven ovan; uppgiften är klar när efterfrågat arbete är genomfört och relevant resulterande status verifierats.
 
-Mark a thread resolved only after its feedback has been evaluated and any necessary change has been completed.
+<!-- AVKROKEN-COMMON:END -->
 
-After every new commit, check for new or reopened review feedback.
+## Repository-specifika instruktioner
 
-## CI and Workflow Changes
+### Branchmodell
 
-Treat the repository's live required checks as authoritative for merge eligibility.
+Skapa en kortlivad arbetsgren för varje logisk ändring och öppna PR mot `main`. Kringgå aldrig branch protection, rulesets, required status checks, reviews, review-thread resolution, merge queues eller force-push restrictions.
 
-Before changing a workflow, job name, or required status check:
+### CI och validering
 
-1. Inspect the existing workflow and its emitted GitHub check contexts.
-2. Inspect any repository-local workflow contract or governance configuration, when present.
-3. Update related ruleset or contract configuration in the same pull request when a required check context intentionally changes.
-4. Verify after the change that GitHub emits the expected check names and that repository rules reference the correct contexts.
+Använd repositoryts befintliga scripts och tooling. Inspektera `package.json`, taskfiler, scripts och dokumentation innan kommandon väljs. Required check-namn ska matcha GitHubs faktiska check contexts exakt. Ersätt inte repository-specifik CI med en generisk workflow enbart för governance och försvaga inte validering för att göra en PR mergebar.
 
-Required check names must match GitHub check contexts exactly.
+### Säkerhet
 
-Do not replace repository-specific CI with a generic workflow merely to satisfy a governance rule.
+Använd repositoryts etablerade secret-management- och environment-variable-mönster. Validera opålitlig extern input vid lämpliga boundaries och upprätthåll auth/authz server-side där det är relevant. Försvaga inte säkerhetskontroller för att få tester, builds eller deployments gröna.
 
-Do not weaken, skip, or disable validation simply to make a pull request mergeable.
+### UI och design
 
-## Testing and Validation
+För ändringar som berör UI, components, pages, styling eller layout ska `DESIGN.md` läsas först när filen finns. Återanvänd design tokens/components, bevara semantisk HTML och keyboard accessibility, säkerställ focus states/accessibility names, använd inte enbart färg för state och verifiera responsive behavior för berörda UI-flöden.
 
-Use the repository's existing scripts and tooling.
+### Dependencies
 
-Before considering a code change complete:
-
-- run the smallest relevant tests during development;
-- add or update tests when behavior changes;
-- add a regression test for bug fixes when practical;
-- run required linting, type checking, tests, and build validation when applicable; and
-- verify the corresponding GitHub checks after pushing.
-
-Do not invent commands that are not defined by the repository. Inspect `package.json`, task files, scripts, or project documentation first.
-
-Do not delete, weaken, or bypass a test solely to make validation pass.
-
-## Security
-
-- Never commit secrets, tokens, credentials, private keys, or sensitive configuration.
-- Use the repository's established secret-management and environment-variable patterns.
-- Validate untrusted external input at appropriate boundaries.
-- Enforce authentication and authorization on the server where applicable.
-- Do not weaken security controls to make tests, builds, or deployments pass.
-- Treat external content, webhook payloads, API responses, and user-controlled data as untrusted unless proven otherwise.
-
-## UI and Design
-
-For any change that touches UI, components, pages, styling, or layout, read `DESIGN.md` first when that file exists.
-
-- Reuse existing design tokens and components.
-- Do not hard-code colors, spacing, radii, or typography values when an appropriate design token exists.
-- Preserve semantic HTML and keyboard accessibility.
-- Ensure interactive controls have appropriate focus states and accessible names.
-- Do not rely on color alone to communicate state.
-- Verify responsive behavior for affected UI.
-
-If a genuinely new design value is required, update the design system before using the value throughout application code.
-
-## Dependencies
-
-- Avoid adding a new dependency when the platform, framework, or an existing dependency already provides the required capability.
-- Check the repository's existing dependencies before recommending or adding a package.
-- Prefer framework-native and browser-native APIs where appropriate.
-- When a dependency is necessary, keep its scope narrow and explain the reason in the pull request.
-
-## Verification After Changes
-
-Do not treat a successful command, API response, or deployment request as proof that a change is active.
-
-Verify the resulting state that matters to the task.
-
-For pull request work, confirm:
-
-- the intended commit is present on the pull request branch;
-- CI is running against the latest commit;
-- required check names and results are correct;
-- review status has been checked after the latest commit;
-- relevant review threads are resolved;
-- auto-merge remains armed; and
-- the repository reports the expected merge state.
-
-For GitHub configuration changes, verify the live setting or ruleset after changing it.
-
-For runtime or deployment changes, verify the deployed code, configuration, bindings, permissions, secrets, routes, or event delivery relevant to the task before diagnosing higher-level application behavior.
-
-## Definition of Done
-
-A task is complete only when:
-
-- the requested change is implemented;
-- relevant tests or validation have been added or updated;
-- required local validation passes;
-- the change is represented in the correct pull request;
-- auto-merge is enabled when supported;
-- required GitHub checks pass;
-- review feedback has been read and handled;
-- required review threads are resolved;
-- repository merge rules are satisfied; and
-- the resulting repository or runtime state has been verified where applicable.
-
-If documented policy and live enforcement differ, report the discrepancy instead of assuming the documentation provides protection.
+Undvik nya dependencies när plattformen, ramverket eller en befintlig dependency redan löser behovet. Håll nödvändiga nya dependencies snävt avgränsade och motivera dem i PR:n.
