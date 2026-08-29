@@ -14,7 +14,7 @@ env:
   MAX_UNPR_MINUTES: "60"
   STATE_BRANCH: "automation/pr-watchdog-state"
   STATE_PATH: ".pr-watchdog-state.json"
-  PERMANENT_BRANCH_PATTERNS: "automation/pr-watchdog-state"
+  PERMANENT_BRANCH_PATTERNS: "automation/pr-watchdog-state automation/codex-issue/*"
 
 jobs:
   open-missing-prs:
