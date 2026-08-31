@@ -10,6 +10,16 @@ Only the latest stable release and the current development branch receive securi
 | main branch       | :white_check_mark: |
 | < latest release  | :x:                |
 
+## Merge security enforcement
+
+For pull requests to `main`, the required security/dependency context is `scan-pr / osv-scan`. It is produced by `.github/workflows/osv-scanner.yml`; the reusable OSV PR workflow fails when a new vulnerability is detected.
+
+The active `Protect main` ruleset also requires `python`, uses strict latest-base status-check enforcement and requires relevant review threads to be resolved before merge.
+
+CodeQL is not configured as a required check or Code Scanning merge-protection rule in the currently verified ruleset, so no CodeQL severity threshold is an active merge gate. Trivy is not configured as a verified merge gate and has no active threshold.
+
+CodeRabbit and Copilot Code Review are advisory/best-effort review services, not required status checks. Their unavailability alone does not block merge. If either service posts a relevant finding, the finding must still be evaluated and any relevant review thread resolved before merge.
+
 ## Reporting a Vulnerability
 
 If you discover a security vulnerability in pastebinit, please report it responsibly.
