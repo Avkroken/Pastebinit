@@ -15,34 +15,23 @@ Credentials, tokens och andra secrets får aldrig hårdkodas eller committas.
 - Auto-merge får aktiveras först när aktuell PR-HEAD har passerat samtliga required checks, relevanta review-trådar är resolved och den aktiva policyn för `main` är verifierad.
 - Använd inte direkt merge om det inte uttryckligen har begärts.
 - Repositoryts live-ruleset tillåter endast squash merge till `main`.
-- Repositoryt använder inte merge queue och har ingen obligatorisk återanvändbar branchpool.
 
 ## Merge-gates
 
-Live-konfigurationen är sanningskällan. För `main` gäller rulesetet `Protect main`:
+Live-konfigurationen är sanningskällan. För `main` gäller organisationsrulesets med följande relevanta gates:
 
 - required status checks: `python` och `scan-pr / osv-scan`
-- `strict_required_status_checks_policy: true`, så PR:n måste verifieras mot aktuell `main`
-- pull request krävs före merge
-- required approvals: 0
-- last-push approval krävs inte
+- strict latest-base-verifiering
+- required approvals: 0; last-push approval krävs inte
 - olösta review-trådar blockerar merge
 - deletion och non-fast-forward/force push är blockerade
-- Copilot Code Review använder `review_on_push: true`; drafts undantas
+- Copilot Code Review är rådgivande, inte en required status check
 - endast squash merge är tillåtet
 - inga bypass actors är konfigurerade
 
-`scan-pr / osv-scan` är repositoryts dependency-/sårbarhetsgate för PR:er och failar när OSV Scanner rapporterar en ny sårbarhet. CodeQL och Trivy är inte konfigurerade som merge-gates i det verifierade rulesetet och ska inte antas vara obligatoriska utan ny live-verifiering.
+CodeRabbit är best effort och inte en required status check. Faktiska relevanta findings från CodeRabbit eller Copilot ska ändå verifieras och åtgärdas. En review-tråd markeras resolved först när eventuell nödvändig fix är pushad och verifierad.
 
-CodeRabbit är best effort och är inte en required status check. Saknad, pending, rate-limited eller misslyckad CodeRabbit-status blockerar inte ensam merge. Om CodeRabbit faktiskt lämnar relevanta findings ska de verifieras och åtgärdas; relevanta review-trådar måste vara resolved innan merge.
-
-Copilot Code Review är rådgivande och inte en required status check. Faktiska relevanta Copilot-findings ska ändå utvärderas och hanteras som annan review-feedback.
-
-Alla review-kommentarer och review-trådar ska läsas och utvärderas. Relevanta findings åtgärdas i samma PR och en tråd markeras resolved först när eventuell nödvändig fix är pushad och verifierad.
-
-Efter varje ny commit ska aktuell HEAD läsas tillbaka, required CI/security köras igen och review-status kontrolleras på nytt. Auto-merge får först därefter aktiveras när samtliga merge-gates för den aktuella HEAD:en är verifierade.
-
-Om merge inte kan ske ska den konkreta blockeraren i live-ruleset, CI, security- eller review-state identifieras och rapporteras. Kringgå aldrig skyddet.
+Efter varje ny commit ska aktuell HEAD, required CI/security och review-status kontrolleras på nytt. Kringgå aldrig repositoryts skydd.
 
 ## Verifiering
 
@@ -53,16 +42,16 @@ Om merge inte kan ske ska den konkreta blockeraren i live-ruleset, CI, security-
 - Lägg till eller uppdatera tester när beteende ändras och det är praktiskt testbart.
 - Kontrollera att diffen inte innehåller secrets, debugrester eller oavsiktliga genererade filer.
 
+Om full lokal validering inte är möjlig ska begränsningen beskrivas konkret i PR:n.
+
 ## GitHub Actions
 
-- `.github/workflows/ci.yml` producerar required context `python`.
-- `.github/workflows/osv-scanner.yml` producerar required PR-context `scan-pr / osv-scan`.
+- `.github/workflows/ci.yml` producerar required context `python` och kör repositoryts Python-verifiering.
+- `.github/workflows/osv-scanner.yml` är repositoryts egen OSV-definition och producerar required PR-context `scan-pr / osv-scan`.
 - `.github/workflows/release-deb.yml` är ett manuellt releasejobb för en redan existerande tagg och ska inte blandas in i PR-CI.
-- Security alerts hanteras centralt av organisationens Skvallerbyttan-flöde. GitHubs inbyggda Dependabot security updates och Copilot-agent används först när de kan hantera alerten; endast återstående fall går via Skvallerbyttans centrala Codex-fallback. Repositoryt ska inte ha en egen security-remediation-writer.
-- `.github/workflows/pr-watchdog.yml` kan öppna en PR för en lokal branch med unika commits som saknat PR för länge, men aktiverar inte auto-merge. State ligger på `automation/pr-watchdog-state`.
-- `.github/workflows/auto-fix-review.yml` får begära en Codex-fix för uttryckligen betrodd review-feedback men får inte lösa review-tråden åt implementationen.
-
-GitHub Actions ska pinnas till commit-SHA när praktiskt möjligt.
+- Repositoryts workflows får inte skapa eller uppdatera pull requests eller branches, arma eller genomföra merge, automatisera review, delegera arbete till AI-agenter eller lagra säkerhetsalert-snapshots.
+- Security alerts hanteras av GitHubs native säkerhetsfunktioner och kodändringar går genom repositoryts normala PR-gates.
+- GitHub Actions ska pinnas till full commit-SHA.
 
 ## Definition of done
 
@@ -70,10 +59,8 @@ En PR-baserad uppgift är klar först när implementationen är färdig, relevan
 
 ## PR-scope efter öppning
 
-Den här sektionen förtydligar tidigare formuleringar om att relevanta findings ska åtgärdas i samma PR.
-
-- När en PR har öppnats är dess avsedda scope, så som det beskrivs i PR:n, fryst. Fortsatta commits får endast slutföra eller korrigera det scopet.
-- Om CI, Code Scanning, tester eller review hittar ett fel som orsakas av PR:ns befintliga ändringar ska just det felet rättas på samma branch/PR. Det är en korrigering inom scope, inte ny scope.
-- Ny funktionalitet, opportunistiska refactors, städning eller separata förbättringar som upptäcks efter att PR:n öppnats ska få en ny kortlivad branch och en ny PR från aktuell `main`; återanvänd inte den öppna PR-grenen för nästa uppgift.
-- Försök inte hinna lägga commits före eller under en pågående CI-/reviewkörning av tidsskäl. Gör en komplett ändring, pusha den, låt gates utvärdera den HEAD:en och reagera därefter.
-- Efter varje korrigerande commit ska relevanta tester köras om och hela tillämpliga gate- och review-state verifieras på den nya HEAD:en före merge.
+- När en PR har öppnats är dess avsedda scope fryst. Fortsatta commits får endast slutföra eller korrigera det scopet.
+- Fel som orsakas av PR:ns befintliga ändringar ska rättas på samma branch/PR.
+- Ny funktionalitet, opportunistiska refactors eller separata förbättringar ska få en ny branch och PR från aktuell `main`.
+- Försök inte hinna lägga commits före eller under en pågående CI-/reviewkörning av tidsskäl.
+- Efter varje korrigerande commit ska relevanta tester samt gate- och review-state verifieras på den nya HEAD:en.
