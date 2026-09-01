@@ -1,26 +1,17 @@
-name: Build & upload .deb release
+name: Debian release
 
-# Byggs bara på begäran för en tagg som redan är släppt, och laddas upp till
-# den releasen. Ligger i en egen fil eftersom den inte har något på en PR att
-# göra — som jobb i en PR-workflow blev den bara en grå överhoppad check.
 on:
   workflow_dispatch:
     inputs:
       tag:
-        description: 'Tagg att bygga .deb för (t.ex. v2.1.5)'
+        description: Release tag
         required: true
 
-concurrency:
-  group: ${{ github.workflow }}-${{ inputs.tag }}
-  cancel-in-progress: true
-
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  build-deb:
-    permissions:
-      contents: write
+  build:
     strategy:
       matrix:
         include:
@@ -29,24 +20,19 @@ jobs:
           - runner: ubuntu-26.04-arm
             arch: arm64
     runs-on: ${{ matrix.runner }}
-
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           ref: ${{ inputs.tag }}
-
+          persist-credentials: false
       - name: Install build tools
         run: |
           sudo apt-get update
           sudo apt-get install -y build-essential devscripts debhelper dh-python python3-all pybuild-plugin-pyproject python3-pip
           sudo pip install --break-system-packages --ignore-installed 'setuptools>=77' 'packaging>=24.2'
-
-      - name: Build .deb
+      - name: Build package
         run: DEB_BUILD_OPTIONS=nocheck dpkg-buildpackage -us -uc -b
-
-      - name: Upload .deb to release
-        run: |
-          DEB=$(ls pastebinit_*.deb | head -1)
-          gh release upload "${{ inputs.tag }}" "$DEB"
+      - name: Upload package
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ github.token }}
+        run: gh release upload "${{ inputs.tag }}" "$(ls pastebinit_*.deb | head -1)"
