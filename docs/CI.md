@@ -1,12 +1,21 @@
 # CI och branchflöde
 
-`main` är den enda långlivade arbetsgrenen. Varje ändring görs på en kortlivad branch och går via PR till `main`. **Squash merge är den enda tillåtna merge-metoden.** Head-branchen raderas automatiskt efter merge.
+`main` är den enda långlivade arbetsgrenen. Varje ändring görs på en kortlivad branch och går via PR till `main`. **Squash merge är den enda tillåtna merge-metoden.**
 
-Auto-merge får aktiveras först när den aktuella PR-HEAD:en har verifierats: required checks ska vara gröna, relevanta review-trådar resolved och den aktiva policyn för `main` känd. Auto-merge används inte som ett test för om GitHub råkar blockera merge.
+Auto-merge får aktiveras först när den aktuella PR-HEAD:en har verifierats enligt repositoryts instruktioner. Om HEAD ändras ska checks, Code Scanning och review-state verifieras igen.
 
 ## Live merge-policy
 
-Det aktiva rulesetet `Protect main` gäller default branch och har inga bypass actors. Det blockerar deletion och non-fast-forward/force push, kräver pull request och resolved review threads, använder 0 generella approvals och kräver inte last-push approval.
+Organisationens aktiva rulesets är verkställande sanning. Vid senaste live-verifieringen gäller för default branch:
+
+- pull request krävs;
+- 1 approval krävs;
+- stale approvals avfärdas efter push;
+- senaste pushen måste godkännas av någon annan än den som gjorde den;
+- review-trådar måste vara resolved;
+- deletion och non-fast-forward/force push blockeras;
+- inga bypass actors är konfigurerade;
+- endast squash merge är tillåtet.
 
 Required status checks är:
 
@@ -15,20 +24,18 @@ Required status checks är:
 
 `strict_required_status_checks_policy` är `true`, vilket innebär att verifieringen måste gälla aktuell `main` och inte en äldre bas.
 
-PR-CI körs på `pull_request`; efter-merge-verifiering körs på `main` där den behövs. Required contexts får inte filtreras bort på workflow-nivå på ett sätt som lämnar GitHub i `Expected/Pending`.
+Org-rulesetet `main` använder dessutom CodeQL Code Scanning merge protection med `medium_or_higher` för security alerts och `errors_and_warnings` för övriga alerts. Samma org-ruleset refererar för närvarande till Regelverkets `.github/workflows/osv-scanner.yml` som central required workflow; det är organisationsnivå och måste ändras separat om den centrala OSV-kopplingen ska tas bort.
 
-## Security
+## Repository-CI
 
-`scan-pr / osv-scan` är den required dependency-/sårbarhetscheck som faktiskt produceras för PR-HEAD. OSV Scanners återanvändbara PR-workflow använder `fail-on-vuln: true`, så en ny upptäckt sårbarhet gör jobbet rött.
+`.github/workflows/ci.yml` producerar `python` och kör projektets compile/test-verifiering.
 
-CodeQL är inte konfigurerat som required status check eller Code Scanning merge-protection-regel i det verifierade rulesetet. Därför finns ingen CodeQL-threshold att dokumentera som aktiv merge-gate.
+`.github/workflows/osv-scanner.yml` är repositoryts egen OSV-definition. PR-jobbet producerar `scan-pr / osv-scan`; scanning på `main`, schema och manual används för kompletterande rapportering.
 
-Trivy används inte som verifierad merge-gate i repositoryt och har därför ingen aktiv Trivy-threshold.
+`.github/workflows/release-deb.yml` är ett separat manuellt releaseflöde för en redan existerande release-tag och är inte en PR-gate.
+
+Required contexts får inte filtreras bort på workflow-nivå så att GitHub lämnas i `Expected`/`Pending`.
 
 ## Reviewtjänster
 
-CodeRabbit är best effort och är inte required status check. Saknad, pending, rate-limited eller misslyckad CodeRabbit-status blockerar inte ensam merge. Faktiska relevanta findings ska däremot utvärderas och eventuella relevanta review-trådar måste vara resolved.
-
-Copilot Code Review är rådgivande och inte required status check. Rulesetet har `review_on_push: true` och granskar inte draft-PR:er. Faktiska relevanta Copilot-findings ska hanteras som annan review-feedback.
-
-Repot är i huvudsak Python. Den ordinarie Python-checken hålls enkel och stabil, medan release-/paketeringsjobb ligger separat. Dokumentation/processmetadata ska inte starta dyr paketering. Okänd kod/config ska däremot hellre köra mer verifiering än riskera att relevant kontroll hoppas över.
+CodeRabbit och Copilot Code Review är rådgivande och inte required status checks. Otillgänglighet, quota eller rate limit blockerar inte ensam merge. Faktiska relevanta findings ska däremot utvärderas och relevanta review-trådar måste vara resolved före merge.
