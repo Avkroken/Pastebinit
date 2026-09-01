@@ -67,3 +67,13 @@ GitHub Actions ska pinnas till commit-SHA när praktiskt möjligt.
 ## Definition of done
 
 En PR-baserad uppgift är klar först när implementationen är färdig, relevanta tester har körts eller en konkret begränsning dokumenterats, den slutliga diffen har granskats, all review-feedback har utvärderats, required `python` och `scan-pr / osv-scan` är gröna för exakt final HEAD, PR:n är verifierad mot aktuell `main`, relevanta review-trådar är resolved och merge har skett via tillåten squash-policy eller väntar på en verifierad legitim external gate.
+
+## PR-scope efter öppning
+
+Den här sektionen förtydligar tidigare formuleringar om att relevanta findings ska åtgärdas i samma PR.
+
+- När en PR har öppnats är dess avsedda scope, så som det beskrivs i PR:n, fryst. Fortsatta commits får endast slutföra eller korrigera det scopet.
+- Om CI, Code Scanning, tester eller review hittar ett fel som orsakas av PR:ns befintliga ändringar ska just det felet rättas på samma branch/PR. Det är en korrigering inom scope, inte ny scope.
+- Ny funktionalitet, opportunistiska refactors, städning eller separata förbättringar som upptäcks efter att PR:n öppnats ska få en ny kortlivad branch och en ny PR från aktuell `main`; återanvänd inte den öppna PR-grenen för nästa uppgift.
+- Försök inte hinna lägga commits före eller under en pågående CI-/reviewkörning av tidsskäl. Gör en komplett ändring, pusha den, låt gates utvärdera den HEAD:en och reagera därefter.
+- Efter varje korrigerande commit ska relevanta tester köras om och hela tillämpliga gate- och review-state verifieras på den nya HEAD:en före merge.
