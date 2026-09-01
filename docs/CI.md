@@ -9,9 +9,8 @@ Auto-merge får aktiveras först när den aktuella PR-HEAD:en har verifierats en
 Organisationens aktiva rulesets är verkställande sanning. Vid senaste live-verifieringen gäller för default branch:
 
 - pull request krävs;
-- 1 approval krävs;
-- stale approvals avfärdas efter push;
-- senaste pushen måste godkännas av någon annan än den som gjorde den;
+- required approvals är 0;
+- last-push approval krävs inte;
 - review-trådar måste vara resolved;
 - deletion och non-fast-forward/force push blockeras;
 - inga bypass actors är konfigurerade;

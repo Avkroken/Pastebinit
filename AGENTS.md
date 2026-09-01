@@ -22,7 +22,7 @@ Live-konfigurationen är sanningskällan. För `main` gäller organisationsrules
 
 - required status checks: `python` och `scan-pr / osv-scan`
 - strict latest-base-verifiering
-- en approval krävs; stale reviews avvisas efter push och den senaste pushen måste godkännas av någon annan
+- required approvals: 0; last-push approval krävs inte
 - olösta review-trådar blockerar merge
 - deletion och non-fast-forward/force push är blockerade
 - Copilot Code Review är rådgivande, inte en required status check
