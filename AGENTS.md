@@ -58,7 +58,7 @@ Om merge inte kan ske ska den konkreta blockeraren i live-ruleset, CI, security-
 - `.github/workflows/ci.yml` producerar required context `python`.
 - `.github/workflows/osv-scanner.yml` producerar required PR-context `scan-pr / osv-scan`.
 - `.github/workflows/release-deb.yml` är ett manuellt releasejobb för en redan existerande tagg och ska inte blandas in i PR-CI.
-- `.github/workflows/codex-issue-remediation.yml` skapar en körningsunik tillfällig branch under `automation/codex-issue/` och öppnar en PR, men armerar inte auto-merge innan aktuell HEAD är verifierad. Dessa branches undantas från PR-watchdog; repots `delete_branch_on_merge` tar bort dem efter merge.
+- Security alerts hanteras centralt av organisationens Skvallerbyttan-flöde. GitHubs inbyggda Dependabot security updates och Copilot-agent används först när de kan hantera alerten; endast återstående fall går via Skvallerbyttans centrala Codex-fallback. Repositoryt ska inte ha en egen security-remediation-writer.
 - `.github/workflows/pr-watchdog.yml` kan öppna en PR för en lokal branch med unika commits som saknat PR för länge, men aktiverar inte auto-merge. State ligger på `automation/pr-watchdog-state`.
 - `.github/workflows/auto-fix-review.yml` får begära en Codex-fix för uttryckligen betrodd review-feedback men får inte lösa review-tråden åt implementationen.
 
