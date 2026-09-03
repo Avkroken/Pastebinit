@@ -18,13 +18,7 @@
   "packages": {
     ".": {
       "release-type": "python",
-      "changelog-path": "CHANGELOG.md",
-      "extra-files": [
-        {
-          "type": "generic",
-          "path": "debian/changelog"
-        }
-      ]
+      "changelog-path": "CHANGELOG.md"
     }
   }
 }
