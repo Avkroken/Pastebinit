@@ -1,0 +1,30 @@
+name: Verify metadata reconciliation
+
+on:
+  push:
+    branches: [ops/verify-metadata-reconcile]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Reconcile open pull-request owners
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          OWNER_ASSIGNEE: blixten85
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t prs < <(
+            gh api --paginate "repos/$REPOSITORY/pulls?state=open&per_page=100" --jq '.[].number'
+          )
+          for pr in "${prs[@]}"; do
+            gh api --method POST "repos/$REPOSITORY/issues/$pr/assignees" \
+              -f "assignees[]=$OWNER_ASSIGNEE" >/dev/null
+          done
