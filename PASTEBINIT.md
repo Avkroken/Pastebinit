@@ -4,7 +4,7 @@ This is the repository governance document for `Avkroken/Pastebinit`. Binding AI
 
 ## Repository
 
-`pastebinit` is a Python project with its test suite under `tests/` and Debian packaging under `debian/`. The manual `.deb` release workflow is separate from pull-request CI.
+`pastebinit` is a Python project with its test suite under `tests/` and Debian packaging under `debian/`.
 
 ## Validation
 
@@ -15,5 +15,8 @@ This is the repository governance document for `Avkroken/Pastebinit`. Binding AI
 ## GitHub Actions contract
 
 - `.github/workflows/ci.yml` owns the `python` check context and performs the repository's Python verification.
-- `.github/workflows/release-deb.yml` is a manual release job for an already existing tag and must remain separate from pull-request CI.
+- `.github/workflows/release.yml` invokes the SHA-pinned Release Please workflow from `Avkroken/.github`. The Release PR updates `CHANGELOG.md`, `pyproject.toml`, the release manifest and the marked Debian package version before passing normal repository merge gates.
+- `release-please-config.json` and `.release-please-manifest.json` are the release automation contract. `pyproject.toml` is the Python package version source; its version must match the stable `vMAJOR.MINOR.PATCH` release tag.
+- The marked top stanza in `debian/changelog` follows the same upstream version for Debian package metadata. User-facing release history belongs in `CHANGELOG.md`, not in the rolling Debian metadata stanza.
+- `.github/workflows/release-deb.yml` runs automatically for a published stable GitHub Release and remains manually retryable with an existing tag. It verifies both Python and Debian versions before building and uploads missing amd64/arm64 `.deb` assets to that release.
 - Pin third-party GitHub Actions to full commit SHAs.
