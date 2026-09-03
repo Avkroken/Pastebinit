@@ -15,8 +15,8 @@ This is the repository governance document for `Avkroken/Pastebinit`. Binding AI
 ## GitHub Actions contract
 
 - `.github/workflows/ci.yml` owns the `python` check context and performs the repository's Python verification.
-- `.github/workflows/release.yml` invokes the SHA-pinned Release Please workflow from `Avkroken/.github`. The Release PR updates `CHANGELOG.md`, `pyproject.toml`, the release manifest and the marked Debian package version before passing normal repository merge gates.
+- `.github/workflows/release.yml` invokes the SHA-pinned Release Please workflow from `Avkroken/.github`. The Release PR updates `CHANGELOG.md`, `pyproject.toml` and the release manifest before passing normal repository merge gates.
 - `release-please-config.json` and `.release-please-manifest.json` are the release automation contract. `pyproject.toml` is the Python package version source; its version must match the stable `vMAJOR.MINOR.PATCH` release tag.
-- The marked top stanza in `debian/changelog` follows the same upstream version for Debian package metadata. User-facing release history belongs in `CHANGELOG.md`, not in the rolling Debian metadata stanza.
-- `.github/workflows/release-deb.yml` runs automatically for a published stable GitHub Release and remains manually retryable with an existing tag. It verifies both Python and Debian versions before building and uploads missing amd64/arm64 `.deb` assets to that release.
+- `debian/changelog` is packaging metadata, not the user-facing release log. The committed top stanza records the migration baseline; `.github/workflows/release-deb.yml` deterministically prepares the current `${version}-1` Debian stanza from the published release tag when required.
+- `.github/workflows/release-deb.yml` runs automatically for a published stable GitHub Release and remains manually retryable with an existing tag. It verifies the Python version before building and uploads missing amd64/arm64 `.deb` assets to that release.
 - Pin third-party GitHub Actions to full commit SHAs.
