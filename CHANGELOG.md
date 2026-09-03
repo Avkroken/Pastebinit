@@ -1,5 +1,7 @@
 # Changelog
 
+Structured changelog entries are maintained automatically by Release Please from the existing `v2.3.7` baseline onward. Releases `v2.1.3` through `v2.3.7` remain available in the GitHub Releases history.
+
 ## [2.1.2](https://github.com/blixten85/pastebinit/compare/v2.1.1...v2.1.2) (2026-05-01)
 
 
