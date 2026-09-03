@@ -1,16 +1,18 @@
 name: Debian release
 
 on:
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       tag:
-        description: Release tag
+        description: Existing release tag to rebuild/upload
         required: true
 
 permissions: {}
 
 concurrency:
-  group: debian-release-${{ inputs.tag }}
+  group: debian-release-${{ github.event.release.tag_name || inputs.tag }}
   cancel-in-progress: false
 
 jobs:
@@ -30,11 +32,11 @@ jobs:
         id: tag
         shell: bash
         env:
-          RAW_TAG: ${{ inputs.tag }}
+          RAW_TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
           set -euo pipefail
-          if [[ ! "$RAW_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
-            echo "::error::Invalid release tag."
+          if [[ ! "$RAW_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid stable release tag."
             exit 1
           fi
           printf 'value=%s\n' "$RAW_TAG" >> "$GITHUB_OUTPUT"
@@ -50,7 +52,25 @@ jobs:
           sudo apt-get install -y build-essential devscripts debhelper dh-python python3-all pybuild-plugin-pyproject python3-pip
           sudo pip install --break-system-packages --ignore-installed 'setuptools>=77' 'packaging>=24.2'
 
-      - name: Verify package version matches tag
+      - name: Verify Python release version
+        shell: bash
+        env:
+          RAW_TAG: ${{ steps.tag.outputs.value }}
+        run: |
+          set -euo pipefail
+          tag_version="${RAW_TAG#v}"
+          python_version="$(python3 - <<'PY'
+          import tomllib
+          with open('pyproject.toml', 'rb') as handle:
+              print(tomllib.load(handle)['project']['version'])
+          PY
+          )"
+          if [[ "$tag_version" != "$python_version" ]]; then
+            echo "::error::Release tag $RAW_TAG does not match pyproject.toml version $python_version."
+            exit 1
+          fi
+
+      - name: Prepare Debian package version
         shell: bash
         env:
           RAW_TAG: ${{ steps.tag.outputs.value }}
@@ -58,9 +78,27 @@ jobs:
           set -euo pipefail
           tag_version="${RAW_TAG#v}"
           deb_version="$(dpkg-parsechangelog -SVersion)"
-          upstream_version="${deb_version%-*}"
-          if [[ "$tag_version" != "$upstream_version" ]]; then
-            echo "::error::Release tag $RAW_TAG does not match debian/changelog version $deb_version."
+          deb_upstream="${deb_version%-*}"
+
+          if [[ "$deb_upstream" != "$tag_version" ]]; then
+            release_date="$(git show -s --format='%aD' HEAD)"
+            tmp="$(mktemp)"
+            cat > "$tmp" <<EOF
+          pastebinit (${tag_version}-1) unstable; urgency=medium
+
+            * Automated Debian package metadata for GitHub release ${RAW_TAG}.
+            * User-facing release history is maintained in CHANGELOG.md.
+
+           -- Anders Eriksson <36226327+blixten85@users.noreply.github.com>  ${release_date}
+
+          EOF
+            cat debian/changelog >> "$tmp"
+            mv "$tmp" debian/changelog
+          fi
+
+          final_version="$(dpkg-parsechangelog -SVersion)"
+          if [[ "$final_version" != "${tag_version}-1" ]]; then
+            echo "::error::Prepared Debian version $final_version does not match ${tag_version}-1."
             exit 1
           fi
 
@@ -101,11 +139,11 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           GH_REPO: ${{ github.repository }}
-          RELEASE_TAG: ${{ inputs.tag }}
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.tag }}
         run: |
           set -euo pipefail
-          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z.-]+)?$ ]]; then
-            echo "::error::Invalid release tag."
+          if [[ ! "$RELEASE_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "::error::Invalid stable release tag."
             exit 1
           fi
           existing="$(gh release view "$RELEASE_TAG" --repo "$GH_REPO" --json assets --jq '.assets[].name')"

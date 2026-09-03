@@ -1,3 +1,10 @@
+pastebinit (2.3.7-1) unstable; urgency=medium
+
+  * Synchronize package metadata with the existing v2.3.7 GitHub release.
+  * User-facing release history is maintained in CHANGELOG.md.
+
+ -- Anders Eriksson <36226327+blixten85@users.noreply.github.com>  Sun, 26 Jul 2026 22:37:42 +0200
+
 pastebinit (2.2.1-1) unstable; urgency=medium
 
   * Build per-architecture .deb packages (amd64, arm64) via CI matrix.
