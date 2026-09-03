@@ -1,8 +1,6 @@
-# x-release-please-start-version
 pastebinit (2.3.7-1) unstable; urgency=medium
-# x-release-please-end
 
-  * Package release metadata follows the repository SemVer release.
+  * Synchronize package metadata with the existing v2.3.7 GitHub release.
   * User-facing release history is maintained in CHANGELOG.md.
 
  -- Anders Eriksson <36226327+blixten85@users.noreply.github.com>  Sun, 26 Jul 2026 22:37:42 +0200
