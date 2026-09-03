@@ -52,7 +52,7 @@ jobs:
           sudo apt-get install -y build-essential devscripts debhelper dh-python python3-all pybuild-plugin-pyproject python3-pip
           sudo pip install --break-system-packages --ignore-installed 'setuptools>=77' 'packaging>=24.2'
 
-      - name: Verify release versions
+      - name: Verify Python release version
         shell: bash
         env:
           RAW_TAG: ${{ steps.tag.outputs.value }}
@@ -65,15 +65,40 @@ jobs:
               print(tomllib.load(handle)['project']['version'])
           PY
           )"
-          deb_version="$(dpkg-parsechangelog -SVersion)"
-          deb_upstream="${deb_version%-*}"
-
           if [[ "$tag_version" != "$python_version" ]]; then
             echo "::error::Release tag $RAW_TAG does not match pyproject.toml version $python_version."
             exit 1
           fi
-          if [[ "$tag_version" != "$deb_upstream" ]]; then
-            echo "::error::Release tag $RAW_TAG does not match debian/changelog version $deb_version."
+
+      - name: Prepare Debian package version
+        shell: bash
+        env:
+          RAW_TAG: ${{ steps.tag.outputs.value }}
+        run: |
+          set -euo pipefail
+          tag_version="${RAW_TAG#v}"
+          deb_version="$(dpkg-parsechangelog -SVersion)"
+          deb_upstream="${deb_version%-*}"
+
+          if [[ "$deb_upstream" != "$tag_version" ]]; then
+            release_date="$(git show -s --format='%aD' HEAD)"
+            tmp="$(mktemp)"
+            cat > "$tmp" <<EOF
+          pastebinit (${tag_version}-1) unstable; urgency=medium
+
+            * Automated Debian package metadata for GitHub release ${RAW_TAG}.
+            * User-facing release history is maintained in CHANGELOG.md.
+
+           -- Anders Eriksson <36226327+blixten85@users.noreply.github.com>  ${release_date}
+
+          EOF
+            cat debian/changelog >> "$tmp"
+            mv "$tmp" debian/changelog
+          fi
+
+          final_version="$(dpkg-parsechangelog -SVersion)"
+          if [[ "$final_version" != "${tag_version}-1" ]]; then
+            echo "::error::Prepared Debian version $final_version does not match ${tag_version}-1."
             exit 1
           fi
 
