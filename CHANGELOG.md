@@ -2,6 +2,13 @@
 
 Structured changelog entries are maintained automatically by Release Please from the existing `v2.3.7` baseline onward. Releases `v2.1.3` through `v2.3.7` remain available in the GitHub Releases history.
 
+## [2.4.2](https://github.com/Avkroken/Pastebinit/compare/v2.4.1...v2.4.2) (2026-09-05)
+
+
+### Documentation
+
+* clarify repository-specific governance ([#215](https://github.com/Avkroken/Pastebinit/issues/215)) ([e7e8461](https://github.com/Avkroken/Pastebinit/commit/e7e846176c312cbea455904fc1cee940489c4450))
+
 ## [2.4.1](https://github.com/Avkroken/Pastebinit/compare/v2.4.0...v2.4.1) (2026-09-05)
 
 
