@@ -18,9 +18,14 @@ Den senaste egna `CI`-körningen på `main` var grön. Jobbet hette `python`, k�
 
 GitHubs dynamiska CodeQL/default-setup-yta var också grön på samma `main`-commit. Därför läggs ingen lokal Advanced CodeQL-workflow till.
 
-## Required checks
+## Verifierade required checks
 
-Rulesetet uppdateras inte förrän de nya standardmallarna faktiskt har producerat observerbara checknamn på denna PR-branch. Den tidigare required checken `python` ersätts därför inte genom antagande.
+På aktuell PR-branch har standardmallarna producerat och klarat följande jobb:
+
+- Python application: `build`
+- Dependency review: `dependency-review`
+
+Dessa observerade namn används därför i repositoryts versionshanterade ruleset-underlag. Den tidigare egna required checken `python` ska inte föras vidare.
 
 ## Funktioner som standardmallarna inte täcker
 
