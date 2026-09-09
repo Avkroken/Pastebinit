@@ -1,0 +1,23 @@
+# Dependency Review Action
+#
+# This Action scans dependency manifest files changed in a pull request and
+# surfaces known-vulnerable versions of declared or updated packages.
+# Source: https://github.com/actions/dependency-review-action
+
+name: Dependency review
+
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  dependency-review:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+      - name: Dependency Review
+        uses: actions/dependency-review-action@v5
