@@ -3,7 +3,7 @@ import argparse
 import pytest
 from io import StringIO
 from unittest.mock import patch, MagicMock
-from pastebinit.cli import build_parser, run
+from pastebinit.cli import build_parser, run, _load_user_key
 
 
 @pytest.fixture(autouse=True)
@@ -48,6 +48,27 @@ def test_run_from_stdin_returns_url(tmp_path):
         )
         url = run(args)
     assert url == "https://bpa.st/ABCD"
+
+
+def test_load_user_key_prompts_for_existing_keystore(tmp_path):
+    args = argparse.Namespace(backend="pastebin.com", user_key=None)
+    backend = MagicMock(supports_auth=True)
+    calls = []
+
+    def fake_get(backend_name, field, keystore_password=None):
+        calls.append((backend_name, field, keystore_password))
+        return "stored-key" if keystore_password == "unlock" else None
+
+    with patch("pastebinit.cli.KEYSTORE_FILE", tmp_path / "keystore") as keystore, \
+         patch("pastebinit.cli.credentials.get", side_effect=fake_get), \
+         patch("pastebinit.cli.getpass.getpass", return_value="unlock"):
+        keystore.write_text("encrypted")
+        assert _load_user_key(args, backend) == "stored-key"
+
+    assert calls == [
+        ("pastebin.com", "user_key", None),
+        ("pastebin.com", "user_key", "unlock"),
+    ]
 
 
 def test_version_flag(capsys):
