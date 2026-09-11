@@ -1,0 +1,26 @@
+python:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.py"
+          - "pyproject.toml"
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file: "tests/**"
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "pyproject.toml"
+          - ".devcontainer/devcontainer.json"
+          - "debian/control"
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - "debian/pastebinit.1"
+
+github_actions:
+  - changed-files:
+      - any-glob-to-any-file: ".github/**"
