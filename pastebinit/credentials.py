@@ -6,7 +6,7 @@ import stat
 from pathlib import Path
 from typing import Optional
 
-from cryptography.fernet import Fernet, InvalidToken
+from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
@@ -76,19 +76,15 @@ def _keystore_set(backend: str, field: str, value: str, password: str) -> None:
     salt = os.urandom(16)
     existing.setdefault(backend, {})[field] = value
     encrypted = Fernet(_derive_key(password, salt)).encrypt(json.dumps(existing).encode())
-    # Create with 0600 from the start — write_bytes + chmod would leave a
-    # window where the file is readable by other users.
     fd = os.open(KEYSTORE_FILE, os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
                  stat.S_IRUSR | stat.S_IWUSR)
-    # The mode above only applies when the file is created; fchmod tightens
-    # permissions on a pre-existing keystore before any content is written.
     os.fchmod(fd, stat.S_IRUSR | stat.S_IWUSR)
     with os.fdopen(fd, "wb") as f:
         f.write(salt + encrypted)
 
 
-def get(backend: str, field: str) -> Optional[str]:
-    """Return credential: env var → OS keyring → encrypted keystore."""
+def get(backend: str, field: str, keystore_password: Optional[str] = None) -> Optional[str]:
+    """Return credential from env, OS keyring, or explicitly unlocked keystore."""
     env_key = _ENV_MAP.get(backend, {}).get(field)
     if env_key:
         val = os.environ.get(env_key)
@@ -99,7 +95,10 @@ def get(backend: str, field: str) -> Optional[str]:
     if val:
         return val
 
-    return None  # keystore requires explicit password prompt — call _keystore_get directly
+    if keystore_password is not None:
+        return _keystore_get(backend, field, keystore_password)
+
+    return None
 
 
 def store(backend: str, field: str, value: str, password: str) -> None:
