@@ -58,6 +58,19 @@ def _print_backends():
               f"{_yn(b.supports_expiry):^6} {_yn(b.supports_privacy):^7} {_yn(b.supports_syntax):^6}")
 
 
+def _load_user_key(args: argparse.Namespace, backend) -> Optional[str]:
+    override = getattr(args, "user_key", None)
+    if override:
+        return override
+
+    user_key = credentials.get(args.backend, "user_key")
+    if user_key or not getattr(backend, "supports_auth", False) or not KEYSTORE_FILE.exists():
+        return user_key
+
+    password = getpass.getpass("Keystore password: ")
+    return credentials.get(args.backend, "user_key", keystore_password=password)
+
+
 def run(args: argparse.Namespace) -> Optional[str]:
     if args.list_backends:
         _print_backends()
@@ -89,6 +102,7 @@ def run(args: argparse.Namespace) -> Optional[str]:
                 print(f"Note: encrypted keystore at {KEYSTORE_FILE} may still contain credentials.")
         return None
 
+    user_key = _load_user_key(args, backend)
     filenames = args.files or ["-"]
     last_url = None
 
@@ -115,8 +129,6 @@ def run(args: argparse.Namespace) -> Optional[str]:
 
         if args.echo:
             print(content)
-
-        user_key = getattr(args, "user_key", None) or credentials.get(args.backend, "user_key")
 
         opts = PasteOptions(
             title=args.title or (display_name or ""),
