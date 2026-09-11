@@ -1,6 +1,5 @@
 import os
-import pytest
-from unittest.mock import patch, MagicMock
+from unittest.mock import patch
 
 
 def test_get_from_env_var(tmp_path):
@@ -31,8 +30,20 @@ def test_store_and_retrieve_from_keystore(tmp_path):
         credentials._keystore_set("pastebin.com", "api_dev_key", "secretkey", "mypassword")
         assert ks.exists()
         assert oct(ks.stat().st_mode)[-3:] == "600"
-        result = credentials._keystore_get("pastebin.com", "api_dev_key", "mypassword")
+        result = credentials.get(
+            "pastebin.com", "api_dev_key", keystore_password="mypassword"
+        )
         assert result == "secretkey"
+
+
+def test_keystore_is_not_read_without_explicit_password(tmp_path):
+    ks = tmp_path / "keystore"
+    with patch("pastebinit.credentials.KEYSTORE_FILE", ks), \
+         patch("pastebinit.credentials.CONFIG_DIR", tmp_path), \
+         patch("pastebinit.credentials._keyring_get", return_value=None):
+        from pastebinit import credentials
+        credentials._keystore_set("pastebin.com", "api_dev_key", "secretkey", "mypassword")
+        assert credentials.get("pastebin.com", "api_dev_key") is None
 
 
 def test_wrong_password_returns_none(tmp_path):
@@ -41,5 +52,5 @@ def test_wrong_password_returns_none(tmp_path):
          patch("pastebinit.credentials.CONFIG_DIR", tmp_path):
         from pastebinit import credentials
         credentials._keystore_set("pastebin.com", "pw", "value", "correct")
-        result = credentials._keystore_get("pastebin.com", "pw", "wrong")
+        result = credentials.get("pastebin.com", "pw", keystore_password="wrong")
         assert result is None
