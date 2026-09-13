@@ -1,26 +1,25 @@
-python:
-  - changed-files:
-      - any-glob-to-any-file:
-          - "**/*.py"
-          - "pyproject.toml"
-
-tests:
-  - changed-files:
-      - any-glob-to-any-file: "tests/**"
-
-dependencies:
-  - changed-files:
-      - any-glob-to-any-file:
-          - "pyproject.toml"
-          - ".devcontainer/devcontainer.json"
-          - "debian/control"
-
 documentation:
   - changed-files:
       - any-glob-to-any-file:
           - "**/*.md"
-          - "debian/pastebinit.1"
+          - "docs/**"
 
-github_actions:
+enhancement:
   - changed-files:
-      - any-glob-to-any-file: ".github/**"
+      - any-glob-to-any-file:
+          - ".github/**"
+          - "CODEOWNERS"
+          - "src/**"
+          - "app/**"
+          - "lib/**"
+          - "test/**"
+          - "tests/**"
+          - "**/package.json"
+          - "**/package-lock.json"
+          - "**/pyproject.toml"
+          - "**/requirements*.txt"
+          - "**/Dockerfile"
+          - "**/Package.swift"
+          - "**/*.csproj"
+          - "**/*.gradle"
+          - "**/*.gradle.kts"
