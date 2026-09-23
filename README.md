@@ -5,7 +5,7 @@
 ## Krav
 
 - Python 3.10 eller senare
-- Valfri OS-keyring för säker lagring av autentiseringsuppgifter
+- valfri OS-keyring för säker lagring av autentiseringsuppgifter
 
 ## Installation
 
@@ -56,11 +56,18 @@ pastebinit --backend pastebin.com --login
 
 Om OS-keyring inte är tillgänglig lagras credentials i den krypterade filen `~/.config/pastebinit/keystore`. CLI:n frågar då efter keystore-lösenordet när den behöver läsa den sparade autentiseringen. Lösenordet lagras inte i klartext av `pastebinit`.
 
-Den krypterade fallback-keystoren skapas med filrättighet `0600` och använder PBKDF2-HMAC-SHA256 samt Fernet för kryptering/autentisering.
+Fallback-keystoren skapas med filrättighet `0600` och använder PBKDF2-HMAC-SHA256 samt Fernet för kryptering/autentisering.
 
 ## Konfiguration
 
 Användarkonfiguration lagras under XDG-konfigurationskatalogen, normalt `~/.config/pastebinit/`.
+
+## Dokumentation
+
+- [Projektkontext](docs/project-context.md)
+- [Arkitektur](docs/architecture.md)
+- [Drift och verifiering](docs/operations.md)
+- [Avkrokens dokumentationsstandard](https://github.com/Avkroken/.github/blob/main/docs/documentation-standard.md)
 
 ## Test
 
@@ -72,14 +79,6 @@ pytest
 
 GPL-2.0-or-later.
 
-## Issues
+## Issues och säkerhet
 
-Använd GitHub Issues för reproducerbara fel eller förbättringsförslag. Mallarna i `.github/ISSUE_TEMPLATE/` används för nya ärenden.
-
-## Säkerhet
-
-Rapportera inte sårbarheter eller hemligheter i publika issues. Följ [SECURITY.md](SECURITY.md) för privat rapportering.
-
-## Finansiering
-
-GitHub Sponsors-konfigurationen finns i `.github/FUNDING.yml`.
+Använd GitHub Issues för reproducerbara fel eller förbättringsförslag. Rapportera inte sårbarheter eller hemligheter i publika issues; följ [SECURITY.md](SECURITY.md) för privat rapportering.
