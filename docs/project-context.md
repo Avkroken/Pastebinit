@@ -1,47 +1,78 @@
 # Projektkontext
 
-**Senast verifierad:** 2026-09-23
+**Senast verifierad:** 2026-09-24
 
 ## Ansvar
 
-`pastebinit` är ett Python-CLI för att skicka text och filer till flera pastebin-backends.
+pastebinit är ett Python-paket och CLI för att skicka text eller filer till paste-tjänster via en gemensam command-line interface.
 
-Packaging och CLI-kontrakt definieras i `pyproject.toml`:
+## Packaging
 
-- package: `pastebinit`
-- version: `2.4.6`
+`pyproject.toml` definierar:
+
+- package name: `pastebinit`
 - Python: `>=3.10`
+- build backend: setuptools
 - CLI entrypoint: `pastebinit = pastebinit.cli:main`
-- license: GPL-2.0-or-later
+- runtime dependencies för credential/configstöd
+- optional test dependencies med pytest och PyYAML.
 
-## Dependencies
+## CLI
 
-Runtime:
+`pastebinit/cli.py` stöder bland annat:
 
-- `cryptography`
-- `keyring`
-- `tomli-w`
-- `tomli` för Python < 3.11
+- filer eller stdin,
+- backendval,
+- title,
+- syntax/format,
+- privacy,
+- expiry,
+- backendmappar där de stöds,
+- echo/verbose,
+- login/logout,
+- listning av backendkapabiliteter.
 
-Test-extra:
+## Config
 
-- `pytest`
-- `pyyaml`
+Konfiguration ligger under:
 
-## Credentialmodell
+```text
+$XDG_CONFIG_HOME/pastebinit/config.toml
+```
 
-Credential-resolution ska prioritera runtime/environment där sådan backendkonfiguration finns och därefter OS-keyring.
+eller motsvarande `~/.config/pastebinit/config.toml` när `XDG_CONFIG_HOME` inte är satt.
 
-När OS-keyring inte går att använda finns en lokal krypterad fallback-keystore under XDG-konfigurationskatalogen. Den får inte degraderas till klartextlagring.
+Verifierade defaults:
 
-## Konfigurationsgräns
+- backend: `bpa.st`
+- privacy: `1`
+- expiry: `N`
+- format: `auto`
 
-Användarkonfiguration hör hemma under XDG config, normalt `~/.config/pastebinit/`. Repositoryt ska inte innehålla användarspecifika credentials eller lokala keystore-filer.
+## Backendmodell
+
+Varje backend implementerar den gemensamma kontraktytan i `pastebinit/backends/base.py` och annonserar capabilities som auth, folders, expiry, privacy och syntax.
+
+CLI:t ska inte anta att alla backends stödjer samma funktioner.
+
+## Credentials
+
+Login är backendberoende. Sparade credentials är skilda från vanlig config och ska hanteras genom repositoryts credentialmodul/keystoremodell.
+
+Secrets eller autentiseringsvärden hör aldrig hemma i testfixtures, README eller docs.
+
+## Syntaxdetektion
+
+När formatet är `auto` används `pastebinit.syntax.detect` med innehåll och filnamn som underlag.
 
 ## Kompatibilitet
 
-Central Python CI ska bevara projektets deklarerade stödgräns från Python 3.10 och uppåt. Versionsändringar i `requires-python` är en publik kompatibilitetsändring och ska behandlas som sådan.
+Python 3.10+ är packagekontraktet. För Python före 3.11 används `tomli`; 3.11+ använder standardbibliotekets `tomllib`.
+
+## Dokumentationsgräns
+
+Detta dokument beskriver repositoryts publika kod och packagekontrakt, inte organisationsspecifik governance.
 
 ## Uppdateringskontrakt
 
-Uppdatera denna fil när CLI entrypoint, Python-stöd, credentialmodell, backendmodell eller packaging ändras.
+Uppdatera dokumentationen när CLI-kontrakt, backendlista/capabilities, configformat, credentialmodell, Python-version eller packaging ändras.
