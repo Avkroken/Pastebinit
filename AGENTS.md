@@ -2,6 +2,7 @@
 
 - Läs [README.md](README.md) och [docs/project-context.md](docs/project-context.md) före ändringar.
 - Arkitektur och driftsverifiering finns i [docs/architecture.md](docs/architecture.md) och [docs/operations.md](docs/operations.md).
+- PR-titlar, SemVer och releasearbete följer [docs/release-standard.md](docs/release-standard.md); `pyproject.toml` äger package-versionen.
 - Repositoryts egna README, `docs/`, AGENTS-instruktioner och versionerade konfiguration är auktoritativa för repositoryts tekniska arbete.
 - Arbeta i separat gren enligt `{agent}/{feature}/{YYYY-MM-DD}/{HH-mm}-{id}`.
 - Kör `pytest` efter relevanta ändringar.
