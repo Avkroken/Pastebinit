@@ -74,6 +74,20 @@ För varje ändrad backend, verifiera:
 
 Repositoryt är ett Python-paket. Releasearbete ska skiljas från vanlig PR-verifiering; tester ska inte implicit publicera paket.
 
+`pyproject.toml [project].version` är canonical package-version. Inför inte en andra versionsfil för releaseautomation.
+
+PR-title-, SemVer-, release-PR-, prerelease-, hotfix- och rollbackkontraktet ligger i [release-standard.md](release-standard.md).
+
+Före en faktisk release ska minst:
+
+1. vanlig repository-CI vara grön;
+2. `pytest` vara grön;
+3. CLI-smoke verifiera `--version`, `--list-backends` och `--help`;
+4. package-build/install-smoke verifiera metadata och entrypoint;
+5. packageversionen i `pyproject.toml` matcha avsedd release.
+
+Current `main` har ingen verifierad aktiv release-PR/taggautomation. Lägg inte till ny PAT eller bredare App-writebehörighet som genväg för releaseautomation.
+
 ## Felsökning
 
 ### Fel backend väljs

@@ -9,6 +9,7 @@ Navigationssida för pastebinit.
 | förstå package, konfiguration och kompatibilitet | [Projektkontext](project-context.md) |
 | förstå CLI-, backend- och credentialgränser | [Arkitektur](architecture.md) |
 | utveckla, testa och verifiera paketet | [Drift](operations.md) |
+| versionera och skapa releases | [Release- och versionsstandard](release-standard.md) |
 | rapportera säkerhetsproblem | [SECURITY.md](../SECURITY.md) |
 
 ## Funktionella områden
@@ -46,7 +47,8 @@ Autentiseringsuppgifter hanteras separat från vanlig config. Loginflödet kan l
 - ny backend → backendtest + architecture
 - configformat/defaults → project-context
 - credentials/login → architecture + credentialtester
-- packaging/Python-version → project-context + operations
+- packaging/Python-version → project-context + operations + release-standard
+- release/PR-title/SemVer → release-standard
 
 ## Wiki
 
