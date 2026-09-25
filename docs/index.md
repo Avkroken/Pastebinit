@@ -50,4 +50,4 @@ Autentiseringsuppgifter hanteras separat från vanlig config. Loginflödet kan l
 
 ## Wiki
 
-GitHub Wiki är aktiverad och lämpar sig för klickbar användar- och backenddokumentation. Versionsstyrda docs är underlaget för teknisk current-state.
+Om GitHub Wiki används kan den ge klickbar användar- och backenddokumentation. Versionsstyrda docs är underlaget för teknisk current-state; aktuell Wiki-setting är extern GitHub-state.
