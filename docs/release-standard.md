@@ -2,7 +2,7 @@
 
 **Senast verifierad:** 2026-09-25
 
-Det här dokumentet gäller **Avkroken/Pastebinit**. Repositoryts egna filer är source of truth för package-, release- och versionskontraktet.
+Det här dokumentet gäller **Pastebinit-repositoryt**. Repositoryts egna filer är source of truth för package-, release- och versionskontraktet.
 
 ## Nuvarande version och canonical källa
 
