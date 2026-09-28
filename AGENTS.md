@@ -4,7 +4,7 @@
 - Arkitektur och driftsverifiering finns i [docs/architecture.md](docs/architecture.md) och [docs/operations.md](docs/operations.md).
 - PR-titlar, SemVer och releasearbete följer [docs/release-standard.md](docs/release-standard.md); `pyproject.toml` äger package-versionen.
 - Repositoryts egna README, `docs/`, AGENTS-instruktioner och versionerade konfiguration är auktoritativa för repositoryts tekniska arbete.
-- Arbeta i separat gren enligt `{agent}/{feature}/{YYYY-MM-DD}/{HH-mm}-{id}`.
+- Arbeta i separat gren enligt `{agent}/{feature}/{YYYY-MM-DD}`.
 - Kör `pytest` efter relevanta ändringar.
 - Bevara Python-stödgränsen och credentialmodell om uppgiften inte uttryckligen ändrar dem.
 - Lägg aldrig credentials, keystore-innehåll eller andra hemligheter i repository eller dokumentation.
