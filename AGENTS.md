@@ -14,3 +14,13 @@
 - Kör `pytest` efter relevanta ändringar.
 - Bevara Python-stödgränsen och credentialmodell om uppgiften inte uttryckligen ändrar dem.
 - Lägg aldrig credentials, keystore-innehåll eller andra hemligheter i repository eller dokumentation.
+## Agent skills
+
+### Issue tracker
+
+Use this repository's GitHub Issues for issues and specifications. Read `docs/agents/issue-tracker.md` before reading, creating, or publishing tickets.
+
+### Domain docs
+
+Use the single-context convention in `docs/agents/domain.md`; existing README, project-context, architecture, operations, and ADR documentation remain authoritative.
+
