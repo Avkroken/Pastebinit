@@ -202,8 +202,10 @@ jobs:
         shell: bash
         env:
           TAG: ${{ steps.release.outputs.tag }}
+          TARGET_SHA: ${{ steps.release.outputs.target_sha }}
         run: |
           set -euo pipefail
+          git checkout --detach "${TARGET_SHA}"
           python -m pip install --upgrade pip build
           version="${TAG#v}"
           SETUPTOOLS_SCM_PRETEND_VERSION_FOR_PASTEBINIT="${version}" python -m build
