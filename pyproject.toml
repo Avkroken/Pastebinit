@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=68", "wheel"]
+requires = ["setuptools>=68", "setuptools-scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "pastebinit"
-version = "2.4.6"
+dynamic = ["version"]
 description = "Send text and files to pastebin services from the command line"
 readme = "README.md"
 license = "GPL-2.0-or-later"
@@ -39,3 +39,8 @@ testpaths = ["tests"]
 [tool.setuptools.packages.find]
 where = ["."]
 include = ["pastebinit*"]
+
+[tool.setuptools_scm]
+version_scheme = "guess-next-dev"
+local_scheme = "no-local-version"
+fallback_version = "0.0.0"
