@@ -153,10 +153,11 @@ def main():
         statuses_by_identity = latest_statuses(raw_statuses)
         statuses = list(statuses_by_identity.values())
 
+        # Required release gates are trusted check-runs. Commit statuses are
+        # still monitored for pending/failure state, but they cannot satisfy a
+        # required check name because push-capable actors can create statuses.
         observed = {
             item.get("name", "") for item in checks if item.get("name")
-        } | {
-            item.get("context", "") for item in statuses if item.get("context")
         }
         missing_required = sorted(required - observed)
 
