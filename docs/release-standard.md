@@ -1,159 +1,74 @@
 # Release- och versionsstandard
 
-**Senast verifierad:** 2026-09-25
+**Senast verifierad:** 2026-09-28
 
-Det här dokumentet gäller **Pastebinit-repositoryt**. Repositoryts egna filer är source of truth för package-, release- och versionskontraktet.
+Det här dokumentet gäller **Pastebinit-repositoryt**. Repositoryts egna filer, taggar och workflows är source of truth för package-, release- och versionskontraktet.
 
-## Nuvarande version och canonical källa
+## Versionskälla
 
-Pastebinit är ett Python-paket byggt med setuptools.
+Pastebinit använder SemVer-taggar i formen `vMAJOR.MINOR.PATCH` som canonical releaseversion.
 
-Canonical package-version är:
+`pyproject.toml` använder `setuptools-scm`, så package-versionen härleds från Git-historiken i stället för från ett separat manuellt versionsfält. Vid release bygger workflown wheel och sdist med exakt releaseversion och bifogar båda till GitHub Release.
 
-```toml
-[project]
-version = "2.4.6"
-```
+Inför inte `version.txt` eller ett andra manuellt versionsankare.
 
-i `pyproject.toml`.
+## PR-titlar och merge queue
 
-Det finns ingen root `CHANGELOG.md` på current `main` och ingen verifierad aktuell Release Please-/`action-gh-release`-workflow. Äldre PR-historik får inte användas som current-state för releaseautomation.
-
-Inför inte `version.txt` eller en andra manuellt underhållen versionskälla. En framtida releaseautomation ska uppdatera den befintliga `[project].version`.
-
-## PR-titlar och squash commits
-
-Pull request-titlar ska följa Conventional Commits:
+PR-titlar ska följa Conventional Commits:
 
 ```text
 <type>[optional scope][!]: <description>
 ```
 
-Tillåtna typer:
+Tillåtna typer är `feat`, `fix`, `perf`, `refactor`, `docs`, `test`, `build`, `ci`, `chore` och `revert`.
 
-- `feat` — ny funktion;
-- `fix` — buggfix;
-- `perf` — prestandaförändring;
-- `refactor` — beteendebevarande omstrukturering;
-- `docs` — dokumentation;
-- `test` — tester;
-- `build` — build-/paketeringssystem;
-- `ci` — CI/CD;
-- `chore` — underhåll utan produktfunktion;
-- `revert` — återställning av tidigare förändring.
-
-Scope är valfri och kan exempelvis vara `cli`, `backends`, `credentials` eller `deps`.
-
-`!` markerar breaking change:
-
-```text
-feat(cli)!: replace argument contract
-```
-
-Workflow `.github/workflows/pr-title.yml` validerar titeln på `pull_request`. Det använder inga secrets, checkar inte ut kod och har `permissions: {}`.
-
-Aktuella Dependabot-PR:er använder redan kompatibla titlar som `chore(deps): ...`.
+`.github/workflows/pr-title.yml` validerar pull requests och rapporterar samma required-check-context för `merge_group`. Workflown använder inga secrets och har `permissions: {}`.
 
 ## SemVer
 
-När en versionerad release skapas gäller:
+Automatisk versionsberäkning följer:
 
-- breaking change → **major**;
-- `feat` → normalt **minor**;
-- `fix` → normalt **patch**;
-- `docs`, `test`, `chore`, `ci` och `build` → normalt ingen version ensamma;
-- `perf` och `refactor` bedöms efter faktisk användar-/paketeffekt.
+- breaking change -> **major**;
+- `feat` -> **minor**;
+- `fix`, `perf` och `revert` -> **patch**;
+- `refactor`, `docs`, `test`, `build`, `ci` och `chore` skapar normalt ingen release ensamma;
+- `Release-As: major|minor|patch|none` kan uttryckligen klassificera en icke-breaking ändring;
+- en breaking change kan aldrig sänkas under major av `Release-As`.
 
-Versionsnumret i `pyproject.toml` ska representera paketets release, inte antalet deployments eller merges.
+## Automatiskt releaseflöde
 
-## När en release ska ske
-
-Release sker kuraterat, inte på varje merge.
-
-En release är motiverad när:
-
-- användarsynlig funktionalitet är färdig;
-- en buggfix bör få en officiell versionspunkt;
-- ett breaking CLI-/backend-/configkontrakt behöver en tydlig major-release;
-- flera färdiga ändringar ska samlas till en begriplig package-release.
-
-GitHub Releases är den avsedda officiella releasehistoriken för Portalens Changelog.
-
-## Release-PR-målbild
-
-Målflödet är:
+`.github/workflows/release.yml` äger releaseprocessen lokalt i repositoryt:
 
 ```text
-main changes
-  -> Conventional Commit-historik
-  -> release-PR
-  -> pyproject.toml version + release notes
-  -> pytest + package/build smoke + relevanta repositorychecks
-  -> merge
-  -> tag
-  -> GitHub Release
+PR
+  -> Conventional Commit-kompatibel PR-titel
+  -> ordinarie Python-CI/review
+  -> merge till main
+  -> Python 3.10 och Python 3.14 verifierar samma main-SHA
+  -> semantic release beräknar SemVer
+  -> wheel + sdist byggs med releaseversionen
+  -> immutable tagg
+  -> GitHub Release med changelog + package-artefakter
 ```
 
-Package-publicering till extern registry är **inte verifierad current state** och ingår inte automatiskt bara för att en GitHub Release skapas.
+Releasejobbet kör endast på `main`, använder full Git-historik, kräver checks i `.github/release-required-checks`, vägrar divergerande releasehistorik och publicerar inte om någon observerad check misslyckas.
 
-## Verifiering vid release
+Ingen PAT eller extern releasebot behövs.
 
-Utöver vanlig PR-CI ska release-/packagingarbete verifiera:
+## Package-publicering
 
-```bash
-python -m pip install -e '.[test]'
-pytest
-pastebinit --version
-pastebinit --list-backends
-pastebinit --help
-```
+GitHub Release bifogar wheel och sdist. Automatisk publicering till PyPI eller annan extern registry ingår **inte** utan ett separat credential- och distributionsbeslut.
 
-Vid faktisk package-build ska en build/install-smoke göras så att package metadata och CLI-entrypoint verifieras. Ingen test eller release-PR ska implicit publicera paketet.
+## Changelog
 
-## Releaseautomation — current state
+GitHub Releases är canonical versionerad changelog. Release notes genereras från first-parent-historiken och grupperas efter Conventional Commit-typ. Breaking changes markeras tydligt utan att tappa sin grundkategori.
 
-Automatisk release-PR/taggning är inte verifierad som aktiv på current `main`.
+`debian/changelog` är separat packaginghistorik och ersätter inte repositoryts releasehistorik.
 
-Release Please är tekniskt kompatibelt med Conventional Commits och har Python-releasehantering som kan uppdatera den befintliga package-versionen. Det är däremot **inte aktiverat här**.
+## Prerelease
 
-Den normala Release Please Actions-modellen med repositoryts `GITHUB_TOKEN` har en blocker: PR:er/taggar skapade av den tokenen triggar inte efterföljande GitHub Actions-workflows. En release-PR skulle då inte automatiskt få samma Python-/dependency-verifiering som vanliga PR:er.
-
-Upstreamreferens: `https://github.com/googleapis/release-please-action#other-actions-on-release-please-prs`.
-
-Följande används inte som genväg:
-
-- ny PAT utan separat credentialbeslut;
-- bredare GitHub App-writebehörighet för en befintlig read-only integration;
-- lättade CI-/review-/repositoryskydd;
-- merge av release-PR utan relevant verifiering.
-
-Full releaseautomation förblir blockerad tills ett least-privilege write-identitetsflöde eller en annan CI-kompatibel modell uttryckligen är vald.
-
-## CHANGELOG
-
-Det finns ingen root `CHANGELOG.md` på current `main`.
-
-GitHub Releases används därför som releasehistorik i nuvarande modell. En framtida releaseautomation kan införa versionsstyrd changelog **som del av samma release-PR**, men då ska den genereras från canonical commit/releasehistorik och inte bli en separat manuellt underhållen sanning.
-
-Debian-`debian/changelog` är packaginghistorik och ska inte behandlas som ersättning för repositoryts övergripande releasehistorik.
-
-## Prereleases
-
-Prereleases används endast när det finns ett konkret distributionsbehov. Använd SemVer-suffix, exempelvis `2.5.0-rc.1`, och dokumentera målgruppen/kanalen.
+Manuell `workflow_dispatch` kan skapa `vMAJOR.MINOR.PATCH-rc.N`. Promotion till stable använder den aktiva RC:ns commit och tar inte med senare `main`-commits implicit.
 
 ## Hotfix och rollback
 
-Hotfix utgår normalt från aktuell `main` och använder `fix:` för en bakåtkompatibel korrigering.
-
-Publicerade taggar ska inte flyttas eller skrivas om. Vid felaktig release:
-
-1. återställ via vanlig PR om kodrollback behövs;
-2. kör normal verifiering;
-3. bumpa till en ny korrigerande version;
-4. skapa ny tag/GitHub Release med tydlig relation till den felaktiga releasen.
-
-Ingen force-push eller tag history rewrite används.
-
-## Kvarvarande blocker
-
-Full releaseautomation är ett separat arbete eftersom write-identitet/CI-triggerproblemet måste lösas utan nya onödiga credentials eller försvagade checks.
+Publicerade taggar flyttas inte. En korrigering går via vanlig PR, normal verifiering och en ny SemVer-release. Ingen force-push eller tag history rewrite används.
