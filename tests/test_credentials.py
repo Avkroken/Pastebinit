@@ -54,3 +54,41 @@ def test_wrong_password_returns_none(tmp_path):
         credentials._keystore_set("pastebin.com", "pw", "value", "correct")
         result = credentials.get("pastebin.com", "pw", keystore_password="wrong")
         assert result is None
+
+
+def test_wrong_password_does_not_replace_existing_keystore(tmp_path):
+    import pytest
+    from pastebinit import credentials
+    ks = tmp_path / "keystore"
+    with patch.object(credentials, "KEYSTORE_FILE", ks), patch.object(credentials, "CONFIG_DIR", tmp_path):
+        credentials._keystore_set("first", "user_key", "original", "correct")
+        original = ks.read_bytes()
+        with pytest.raises(ValueError):
+            credentials._keystore_set("second", "user_key", "new", "wrong")
+        assert ks.read_bytes() == original
+        assert credentials._keystore_get("first", "user_key", "correct") == "original"
+
+
+def test_failed_keystore_replace_preserves_existing_file(tmp_path):
+    import pytest
+    from pastebinit import credentials
+    ks = tmp_path / "keystore"
+    with patch.object(credentials, "KEYSTORE_FILE", ks), patch.object(credentials, "CONFIG_DIR", tmp_path):
+        credentials._keystore_set("first", "user_key", "original", "correct")
+        original = ks.read_bytes()
+        with patch("os.replace", side_effect=OSError("synthetic write failure")):
+            with pytest.raises(OSError):
+                credentials._keystore_set("second", "user_key", "new", "correct")
+        assert ks.read_bytes() == original
+        assert list(tmp_path.iterdir()) == [ks]
+
+
+def test_successful_keystore_update_preserves_other_credentials(tmp_path):
+    from pastebinit import credentials
+    ks = tmp_path / "keystore"
+    with patch.object(credentials, "KEYSTORE_FILE", ks), patch.object(credentials, "CONFIG_DIR", tmp_path):
+        credentials._keystore_set("first", "user_key", "original", "correct")
+        credentials._keystore_set("second", "user_key", "new", "correct")
+        assert credentials._keystore_get("first", "user_key", "correct") == "original"
+        assert credentials._keystore_get("second", "user_key", "correct") == "new"
+        assert ks.stat().st_mode & 0o777 == 0o600
