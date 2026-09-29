@@ -3,10 +3,11 @@ import json
 import logging
 import os
 import stat
+import tempfile
 from pathlib import Path
 from typing import Optional
 
-from cryptography.fernet import Fernet
+from cryptography.fernet import Fernet, InvalidToken
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
@@ -71,16 +72,24 @@ def _keystore_set(backend: str, field: str, value: str, password: str) -> None:
             raw = KEYSTORE_FILE.read_bytes()
             salt_old, token = raw[:16], raw[16:]
             existing = json.loads(Fernet(_derive_key(password, salt_old)).decrypt(token))
-        except Exception:
-            logger.debug("Unable to read existing keystore; proceeding with new keystore content.", exc_info=True)
+        except (InvalidToken, ValueError) as exc:
+            raise ValueError("Cannot unlock existing keystore; credentials were not changed.") from exc
+        if not isinstance(existing, dict) or any(not isinstance(value, dict) for value in existing.values()):
+            raise ValueError("Invalid keystore content; credentials were not changed.")
     salt = os.urandom(16)
     existing.setdefault(backend, {})[field] = value
     encrypted = Fernet(_derive_key(password, salt)).encrypt(json.dumps(existing).encode())
-    fd = os.open(KEYSTORE_FILE, os.O_WRONLY | os.O_CREAT | os.O_TRUNC,
-                 stat.S_IRUSR | stat.S_IWUSR)
-    os.fchmod(fd, stat.S_IRUSR | stat.S_IWUSR)
-    with os.fdopen(fd, "wb") as f:
-        f.write(salt + encrypted)
+    fd, temporary = tempfile.mkstemp(prefix=".keystore-", dir=CONFIG_DIR)
+    try:
+        with os.fdopen(fd, "wb") as f:
+            os.fchmod(f.fileno(), stat.S_IRUSR | stat.S_IWUSR)
+            f.write(salt + encrypted)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(temporary, KEYSTORE_FILE)
+    finally:
+        Path(temporary).unlink(missing_ok=True)
+
 
 
 def get(backend: str, field: str, keystore_password: Optional[str] = None) -> Optional[str]:

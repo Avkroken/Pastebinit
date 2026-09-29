@@ -87,7 +87,7 @@ def run(args: argparse.Namespace) -> Optional[str]:
             credentials.store(args.backend, "username", username, pw)
             credentials.store(args.backend, "user_key", user_key, pw)
             print(f"Logged in to {args.backend} successfully.")
-        except (AuthError, NotSupportedError) as e:
+        except (AuthError, NotSupportedError, ValueError, OSError) as e:
             print(f"Login failed: {e}", file=sys.stderr)
             sys.exit(1)
         return None
