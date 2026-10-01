@@ -53,7 +53,7 @@ PR
 
 Releasejobbet kör endast på `main`, använder full Git-historik, kräver checks i `.github/release-required-checks`, vägrar divergerande releasehistorik och publicerar inte om någon observerad check misslyckas.
 
-Ingen PAT eller extern releasebot behövs.
+Canonical tagg- och GitHub Release-publication behöver ingen PAT eller extern releasebot. Det valfrria rådgivande Copilot-jobbet använder separat read-only `COPILOT_GITHUB_TOKEN`.
 
 ## Package-publicering
 
