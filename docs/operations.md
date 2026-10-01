@@ -86,7 +86,7 @@ Före en faktisk release ska minst:
 4. package-build/install-smoke verifiera metadata och entrypoint;
 5. packageversionen i `pyproject.toml` matcha avsedd release.
 
-Current `main` har ingen verifierad aktiv release-PR/taggautomation. Lägg inte till ny PAT eller bredare App-writebehörighet som genväg för releaseautomation.
+Current `main` har ingen verifierad aktiv release-PR/taggautomation. Lägg inte till PAT eller bredare App-writebehörighet som genväg för canonical releasepublication; ett separat read-only Copilot-credential får endast användas för rådgivande release-note-generering och får inte skapa tagg eller GitHub Release.
 
 ## Felsökning
 
