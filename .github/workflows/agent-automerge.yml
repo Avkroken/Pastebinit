@@ -22,4 +22,4 @@ jobs:
       checks: read
       contents: write
       pull-requests: write
-    uses: Avkroken/.github/.github/workflows/agent-automerge-policy.yml@e853bde6e0e8c88e8d8df2709cf3e2d61ddc396c
+    uses: Avkroken/.github/.github/workflows/agent-automerge-policy.yml@abb25f56b330eeeb266e42b6ea0ef88831974fa1
